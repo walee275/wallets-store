@@ -15,6 +15,19 @@ class Money
         };
     }
 
+    /**
+     * Email-safe money format, e.g. "PKR 15,150".
+     */
+    public static function formatEmail(int $cents, string $currency = 'PKR'): string
+    {
+        $major = $cents / 100;
+        $amount = fmod($major, 1.0) === 0.0
+            ? number_format($major, 0)
+            : number_format($major, 2);
+
+        return strtoupper($currency).' '.$amount;
+    }
+
     public static function fromMajor(float|int|string $major): int
     {
         return (int) round(((float) $major) * 100);

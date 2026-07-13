@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Storefront;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Collection;
-use App\Models\StoreSetting;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -21,24 +20,35 @@ class HomeController extends Controller
                         'variants' => fn ($q) => $q->where('is_default', true)->where('is_active', true),
                         'images' => fn ($q) => $q->where('is_primary', true)->orderBy('position'),
                     ])
-                    ->orderByPivot('position');
+                    ->orderByPivot('position')
+                    ->limit(4);
             }])
             ->first();
 
+        $featuredProducts = ($featuredCollection?->products ?? collect())
+            ->take(4)
+            ->values()
+            ->map(function ($product) {
+                $product->setRelation('defaultVariant', $product->variants->first());
+                $product->setRelation('primaryImage', $product->images->first());
+
+                return $product;
+            });
+
         $categories = Category::query()
             ->where('is_active', true)
+            ->whereNull('parent_id')
+            ->with(['children' => fn ($q) => $q->where('is_active', true)->orderBy('position')])
             ->orderBy('position')
+            ->limit(3)
             ->get();
 
-        $homepageBanner = StoreSetting::query()
-            ->where('key', 'homepage')
-            ->value('value_json');
-
         return Inertia::render('Storefront/Home', [
-            'featuredCollection' => $featuredCollection,
-            'featuredProducts' => $featuredCollection?->products ?? collect(),
+            'featuredCollection' => $featuredCollection
+                ? $featuredCollection->only(['id', 'name'])
+                : null,
+            'featuredProducts' => $featuredProducts,
             'categories' => $categories,
-            'homepageBanner' => $homepageBanner,
         ]);
     }
 }

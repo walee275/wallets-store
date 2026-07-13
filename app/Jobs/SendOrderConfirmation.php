@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Mail\OrderConfirmedMail;
 use App\Models\Order;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -18,7 +19,10 @@ class SendOrderConfirmation implements ShouldQueue
 
     public function handle(): void
     {
-        $this->order->loadMissing('items');
+        $this->order->loadMissing([
+            'items.variant.images',
+            'items.variant.product.images',
+        ]);
 
         Log::info('Sending order confirmation', [
             'order_id' => $this->order->id,
@@ -26,12 +30,6 @@ class SendOrderConfirmation implements ShouldQueue
             'email' => $this->order->email,
         ]);
 
-        Mail::raw(
-            "Thank you for your order {$this->order->number}.",
-            function ($message) {
-                $message->to($this->order->email)
-                    ->subject("Order confirmation {$this->order->number}");
-            }
-        );
+        Mail::to($this->order->email)->send(new OrderConfirmedMail($this->order));
     }
 }

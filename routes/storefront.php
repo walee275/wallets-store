@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\MailPreviewController;
 use App\Http\Controllers\Storefront\AccountController;
 use App\Http\Controllers\Storefront\CartController;
 use App\Http\Controllers\Storefront\CatalogController;
@@ -36,6 +37,11 @@ Route::get('/checkout/confirmation/{order}', [CheckoutController::class, 'confir
     ->name('checkout.confirmation');
 
 Route::get('/pages/{slug}', [PageController::class, 'show'])->name('pages.show');
+
+if (app()->environment('local')) {
+    Route::get('/mail-preview/{type}', MailPreviewController::class)
+        ->name('mail.preview');
+}
 
 Route::middleware('auth')->group(function () {
     Route::get('/account/orders', [AccountController::class, 'ordersIndex'])->name('account.orders');

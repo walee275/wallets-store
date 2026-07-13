@@ -12,6 +12,7 @@ use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\ProductVariant;
 use App\Support\Money;
+use App\Support\ProductEmailImage;
 use App\Support\SkuGenerator;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -306,20 +307,23 @@ class ProductController extends Controller
 
     protected function storeProductImage(Product $product, UploadedFile $file): void
     {
+        $disk = Storage::disk(config('media.disk', 'public'));
         $filename = Str::uuid().'.'.$file->getClientOriginalExtension();
         $path = 'products/'.$filename;
 
-        $image = Image::read($file)->scaleDown(1200, 1200);
-        Storage::disk('public')->put($path, (string) $image->encode());
+        $image = Image::decode($file)->scaleDown(1200, 1200);
+        $disk->put($path, (string) $image->encodeUsingFileExtension($file->getClientOriginalExtension() ?: 'jpg'));
 
         $product->images()->update(['is_primary' => false]);
 
-        ProductImage::query()->create([
+        $productImage = ProductImage::query()->create([
             'product_id' => $product->id,
             'path' => $path,
             'alt' => $product->title,
             'position' => 0,
             'is_primary' => true,
         ]);
+
+        ProductEmailImage::generateThumb($productImage);
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ProductStatus;
+use App\Support\ProductEmailImage;
 use Database\Factories\ProductFactory;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
@@ -72,5 +73,13 @@ class Product extends Model
         return $this->belongsToMany(Collection::class, 'collection_product')
             ->withPivot('position')
             ->orderByPivot('position');
+    }
+
+    /**
+     * Absolute CDN URL for a variant's primary image at the fixed email-thumb size.
+     */
+    public static function emailThumbnailUrl(ProductVariant $variant): ?string
+    {
+        return ProductEmailImage::urlForVariant($variant);
     }
 }

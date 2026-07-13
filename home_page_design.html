@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hartlow & Co. — Full-Grain Leather Goods</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,450;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --espresso: #2A1D16;
+    --canvas: #E8E1D3;
+    --cognac: #8C5A2B;
+    --oxblood: #5C1F22;
+    --brass: #A6874F;
+    --ink: #1C1815;
+    --stone: #8A7D6C;
+    --hairline: #C9BBA1;
+    --canvas-dim: #DED5C1;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--canvas);
+    color: var(--ink);
+    font-family: 'Inter', Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color:inherit; text-decoration:none; }
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 0 40px; }
+
+  /* ---------- STITCH DIVIDER (signature element) ---------- */
+  .stitch {
+    height: 5px;
+    background:
+      repeating-linear-gradient(to right, var(--brass) 0 8px, transparent 8px 16px) top / 100% 1px no-repeat,
+      repeating-linear-gradient(to right, var(--brass) 0 8px, transparent 8px 16px) bottom / 100% 1px no-repeat;
+    opacity: 0.85;
+  }
+  .stitch.on-canvas {
+    background:
+      repeating-linear-gradient(to right, var(--hairline) 0 8px, transparent 8px 16px) top / 100% 1px no-repeat,
+      repeating-linear-gradient(to right, var(--hairline) 0 8px, transparent 8px 16px) bottom / 100% 1px no-repeat;
+  }
+
+  /* ---------- HEADER ---------- */
+  header {
+    background: var(--espresso);
+    color: var(--canvas);
+  }
+  .nav-row {
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 26px 0;
+  }
+  .wordmark {
+    font-family:'Fraunces', serif; font-size: 22px; letter-spacing: 0.5px; font-weight:450;
+    color: var(--canvas);
+  }
+  .nav-links { display:flex; gap:36px; font-size:14px; letter-spacing:0.3px; }
+  .nav-links a { color: #C9BEA8; transition: color .2s ease; }
+  .nav-links a:hover { color: var(--brass); }
+  .nav-right { display:flex; align-items:center; gap:26px; font-size: 13px; }
+  .search-box {
+    display:flex; align-items:center; gap:8px;
+    border:1px solid #4A3A2C; padding:9px 14px;
+    color:#8F8071; font-size:13px; min-width:200px;
+  }
+  .icon-link { display:flex; align-items:center; gap:6px; color:#C9BEA8; }
+  .cart-count {
+    background:var(--brass); color:var(--espresso); font-family:'IBM Plex Mono',monospace;
+    font-size:10px; width:16px; height:16px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+  }
+
+  /* ---------- HERO ---------- */
+  .hero {
+    position: relative;
+    min-height: 560px;
+    display:flex; align-items:flex-end;
+    background:
+      radial-gradient(ellipse 900px 500px at 15% 20%, rgba(140,90,43,0.35), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 85% 80%, rgba(92,31,34,0.28), transparent 55%),
+      repeating-radial-gradient(circle at 50% 50%, rgba(0,0,0,0.05) 0, rgba(0,0,0,0.05) 1px, transparent 2px, transparent 4px),
+      linear-gradient(160deg, #241811 0%, #2E2016 45%, #241610 100%);
+    overflow:hidden;
+  }
+  .hero::after {
+    content:"";
+    position:absolute; inset:0;
+    background: linear-gradient(0deg, rgba(20,13,9,0.55) 0%, rgba(20,13,9,0) 45%);
+  }
+  .hero-inner {
+    position:relative; z-index:2;
+    padding: 0 40px 64px 40px;
+    max-width: 1240px; margin: 0 auto; width:100%;
+  }
+  .eyebrow {
+    font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:3px;
+    color: var(--brass); text-transform:uppercase; margin-bottom:22px;
+  }
+  .hero h1 {
+    font-family:'Fraunces', serif; font-weight:450; font-size: 58px; line-height:1.05;
+    color: var(--canvas); max-width: 640px; letter-spacing:-0.5px;
+  }
+  .hero p {
+    margin-top:22px; font-size:16px; line-height:26px; color:#C9BEA8; max-width:460px;
+  }
+  .hero-ctas { display:flex; gap:28px; align-items:center; margin-top:34px; }
+  .btn-primary {
+    background: var(--cognac); color:#F5EFE3; padding:15px 34px;
+    font-size:13px; letter-spacing:1.5px; text-transform:uppercase; font-weight:600;
+    transition: background .2s ease;
+  }
+  .btn-primary:hover { background:#7A4B22; }
+  .link-underline {
+    font-size:13px; letter-spacing:0.5px; color:var(--canvas);
+    border-bottom:1px solid var(--brass); padding-bottom:3px;
+  }
+
+  /* ---------- SECTION HEADERS ---------- */
+  .section { padding: 84px 0; }
+  .section-head {
+    display:flex; justify-content:space-between; align-items:baseline;
+    margin-bottom: 40px;
+  }
+  .section-eyebrow {
+    font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:2.5px;
+    color: var(--stone); text-transform:uppercase; margin-bottom:10px;
+  }
+  .section-head h2 {
+    font-family:'Fraunces', serif; font-size:32px; font-weight:450; color:var(--ink);
+  }
+  .view-all { font-size:13px; color:var(--oxblood); border-bottom:1px solid var(--oxblood); padding-bottom:2px; }
+
+  /* ---------- CATEGORY TILES ---------- */
+  .categories { display:grid; grid-template-columns: repeat(3, 1fr); gap:2px; background: var(--hairline); }
+  .cat-tile {
+    position:relative; height: 300px; display:flex; align-items:flex-end; padding:26px;
+    overflow:hidden;
+  }
+  .cat-tile span {
+    position:relative; z-index:2; font-family:'Fraunces', serif; font-size:22px; color:var(--canvas);
+  }
+  .cat-tile small {
+    position:relative; z-index:2; display:block; font-family:'IBM Plex Mono', monospace;
+    font-size:11px; letter-spacing:1.5px; color:var(--brass); margin-top:6px; text-transform:uppercase;
+  }
+  .cat-tile::before {
+    content:""; position:absolute; inset:0;
+    background: linear-gradient(0deg, rgba(20,13,9,0.75) 0%, rgba(20,13,9,0.15) 60%);
+    z-index:1;
+  }
+  .tile-1 { background: repeating-radial-gradient(circle at 40% 40%, rgba(0,0,0,0.08) 0, rgba(0,0,0,0.08) 1px, transparent 2px, transparent 5px), linear-gradient(135deg, #8C5A2B, #5C3B1C); }
+  .tile-2 { background: repeating-radial-gradient(circle at 60% 30%, rgba(0,0,0,0.08) 0, rgba(0,0,0,0.08) 1px, transparent 2px, transparent 5px), linear-gradient(135deg, #2A1D16, #1C120C); }
+  .tile-3 { background: repeating-radial-gradient(circle at 50% 60%, rgba(0,0,0,0.08) 0, rgba(0,0,0,0.08) 1px, transparent 2px, transparent 5px), linear-gradient(135deg, #5C1F22, #3B1416); }
+
+  /* ---------- PRODUCT GRID ---------- */
+  .products { display:grid; grid-template-columns: repeat(4, 1fr); gap:32px; }
+  .product-card { cursor:pointer; }
+  .product-media {
+    position:relative; aspect-ratio: 1/1; overflow:hidden;
+    border:1px solid var(--hairline);
+    display:flex; align-items:center; justify-content:center;
+    transition: border-color .2s ease;
+  }
+  .product-card:hover .product-media { border-color: var(--cognac); }
+  .product-card:hover .product-media .swatch { transform: scale(1.04); }
+  .swatch { position:absolute; inset:0; transition: transform .5s ease; }
+  .swatch::after {
+    content:""; position:absolute; inset:0;
+    background: repeating-radial-gradient(circle at 45% 40%, rgba(0,0,0,0.07) 0, rgba(0,0,0,0.07) 1px, transparent 2px, transparent 5px);
+  }
+  .swatch-cognac { background: linear-gradient(150deg, #A5713A, #7A4E23); }
+  .swatch-espresso { background: linear-gradient(150deg, #3A2A1E, #241811); }
+  .swatch-oxblood { background: linear-gradient(150deg, #723033, #4A181A); }
+  .swatch-brass { background: linear-gradient(150deg, #C2A06A, #8F714A); }
+  .product-tag {
+    position:absolute; top:14px; left:14px; z-index:3;
+    font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:1px;
+    color:#F5EFE3; background: rgba(20,13,9,0.55); padding:4px 9px; text-transform:uppercase;
+  }
+  .product-info { padding-top:16px; }
+  .product-info h3 { font-family:'Fraunces', serif; font-size:17px; font-weight:450; color:var(--ink); }
+  .product-meta {
+    font-family:'IBM Plex Mono', monospace; font-size:11px; color: var(--stone);
+    letter-spacing:0.5px; margin-top:5px;
+  }
+  .product-price {
+    font-family:'IBM Plex Mono', monospace; font-size:13px; color:var(--ink); margin-top:10px;
+  }
+
+  /* ---------- CRAFT STRIP ---------- */
+  .craft {
+    background: var(--espresso); color: var(--canvas);
+    padding: 70px 0;
+  }
+  .craft-grid { display:grid; grid-template-columns: repeat(3, 1fr); gap:50px; }
+  .craft-item .num { font-family:'IBM Plex Mono', monospace; color:var(--brass); font-size:12px; letter-spacing:2px; }
+  .craft-item h4 { font-family:'Fraunces', serif; font-size:20px; font-weight:450; margin-top:14px; }
+  .craft-item p { font-size:14px; line-height:22px; color:#B7A98C; margin-top:10px; }
+
+  /* ---------- FOOTER ---------- */
+  footer { background: var(--espresso); color:#C9BEA8; padding: 56px 0 34px 0; }
+  .footer-grid { display:grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap:40px; padding-bottom:44px; }
+  .footer-brand .wordmark { margin-bottom:14px; }
+  .footer-brand p { font-size:13px; line-height:22px; color:#8F8071; max-width:260px; }
+  .footer-col h5 {
+    font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:2px;
+    color: var(--brass); text-transform:uppercase; margin-bottom:16px;
+  }
+  .footer-col a { display:block; font-size:14px; color:#C9BEA8; margin-bottom:11px; }
+  .footer-col a:hover { color: var(--brass); }
+  .footer-bottom {
+    display:flex; justify-content:space-between; align-items:center;
+    padding-top:28px; font-family:'IBM Plex Mono', monospace; font-size:11px;
+    letter-spacing:1px; color:#8F8071;
+  }
+
+  @media (max-width: 900px) {
+    .hero h1 { font-size:38px; }
+    .categories, .products, .craft-grid { grid-template-columns: repeat(2, 1fr); }
+    .footer-grid { grid-template-columns: repeat(2, 1fr); }
+    .nav-links { display:none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav-row">
+    <div class="wordmark">HARTLOW &amp; CO.</div>
+    <nav class="nav-links">
+      <a href="#">Wallets</a>
+      <a href="#">Bags</a>
+      <a href="#">Belts</a>
+      <a href="#">Accessories</a>
+      <a href="#">Our Craft</a>
+    </nav>
+    <div class="nav-right">
+      <div class="search-box">⌕ &nbsp;Search the collection…</div>
+      <a href="#" class="icon-link">Account</a>
+      <a href="#" class="icon-link">Cart <span class="cart-count">2</span></a>
+    </div>
+  </div>
+</header>
+<div class="stitch"></div>
+
+<!-- HERO — the thesis: the leather itself, not a discount banner -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow">Full-Grain &nbsp;·&nbsp; Vegetable-Tanned &nbsp;·&nbsp; Hand-Stitched</div>
+    <h1>Cut once.<br>Carried for decades.</h1>
+    <p>Every wallet begins as a single hide, selected by hand and stitched saddle-tight by our small workshop in Islamabad — built to age into something better than new.</p>
+    <div class="hero-ctas">
+      <a href="#" class="btn-primary">Shop the Foundry Collection</a>
+      <a href="#" class="link-underline">See how it's made →</a>
+    </div>
+  </div>
+</section>
+
+<!-- SHOP BY CATEGORY -->
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="section-eyebrow">Shop by category</div>
+        <h2>Three forms, one standard</h2>
+      </div>
+    </div>
+  </div>
+  <div class="categories">
+    <a class="cat-tile tile-1"><span>Wallets</span><small>Bifold · Cardholder · Travel</small></a>
+    <a class="cat-tile tile-2"><span>Bags</span><small>Tote · Weekender · Satchel</small></a>
+    <a class="cat-tile tile-3"><span>Belts</span><small>Dress · Casual · Reversible</small></a>
+  </div>
+</section>
+
+<!-- BESTSELLERS -->
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="section-eyebrow">Most carried</div>
+        <h2>Bestsellers</h2>
+      </div>
+      <a href="#" class="view-all">View all →</a>
+    </div>
+    <div class="products">
+
+      <div class="product-card">
+        <div class="product-media">
+          <div class="swatch swatch-cognac"></div>
+          <div class="product-tag">Cognac</div>
+        </div>
+        <div class="product-info">
+          <h3>The Foundry Bifold</h3>
+          <div class="product-meta">Full-Grain · 8 Card Slots</div>
+          <div class="product-price">PKR 8,900</div>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-media">
+          <div class="swatch swatch-espresso"></div>
+          <div class="product-tag">Espresso</div>
+        </div>
+        <div class="product-info">
+          <h3>Slim Cardholder</h3>
+          <div class="product-meta">Full-Grain · 4 Card Slots</div>
+          <div class="product-price">PKR 3,800</div>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-media">
+          <div class="swatch swatch-oxblood"></div>
+          <div class="product-tag">Oxblood</div>
+        </div>
+        <div class="product-info">
+          <h3>Weekender Belt</h3>
+          <div class="product-meta">Vegetable-Tanned · Brass Buckle</div>
+          <div class="product-price">PKR 5,400</div>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-media">
+          <div class="swatch swatch-brass"></div>
+          <div class="product-tag">Natural Tan</div>
+        </div>
+        <div class="product-info">
+          <h3>The Atelier Tote</h3>
+          <div class="product-meta">Full-Grain · Hand-Stitched Handles</div>
+          <div class="product-price">PKR 22,500</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- CRAFT STRIP — structure that's actually a sequence, so numbering earns its place -->
+<section class="craft">
+  <div class="wrap">
+    <div class="craft-grid">
+      <div class="craft-item">
+        <div class="num">01 — Select</div>
+        <h4>One hide, hand-chosen</h4>
+        <p>Every piece starts with a single full-grain hide, inspected for grain consistency before a single cut is made.</p>
+      </div>
+      <div class="craft-item">
+        <div class="num">02 — Cut &amp; Stitch</div>
+        <h4>Saddle-stitched by hand</h4>
+        <p>Our workshop hand-stitches every seam using waxed thread — slower than machine stitching, and far stronger.</p>
+      </div>
+      <div class="craft-item">
+        <div class="num">03 — Finish</div>
+        <h4>Edges burnished, not painted</h4>
+        <p>Edges are burnished with beeswax rather than coated, so they age gracefully instead of peeling.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="stitch"></div>
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="wordmark">HARTLOW &amp; CO.</div>
+        <p>Full-grain leather goods, hand-cut and stitched in a small workshop in Islamabad. Built to be carried, not replaced.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Shop</h5>
+        <a href="#">Wallets</a>
+        <a href="#">Bags</a>
+        <a href="#">Belts</a>
+        <a href="#">Gift Cards</a>
+      </div>
+      <div class="footer-col">
+        <h5>Care &amp; Returns</h5>
+        <a href="#">Leather Care Guide</a>
+        <a href="#">Returns &amp; Exchanges</a>
+        <a href="#">Shipping</a>
+      </div>
+      <div class="footer-col">
+        <h5>About</h5>
+        <a href="#">Our Craft</a>
+        <a href="#">Contact</a>
+        <a href="#">Track Order</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Hartlow &amp; Co. — Islamabad, Pakistan</span>
+      <span>Handcrafted, Not Mass-Produced</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

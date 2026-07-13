@@ -33,6 +33,9 @@ class Order extends Model
         'billing_address_json',
         'notes',
         'discount_code',
+        'carrier',
+        'tracking_number',
+        'tracking_url',
         'placed_at',
     ];
 

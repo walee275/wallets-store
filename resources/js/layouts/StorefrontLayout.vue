@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import StitchDivider from '@/components/Storefront/StitchDivider.vue';
 import { Link, usePage } from '@inertiajs/vue3';
-import { Menu, Search, ShoppingCart, X } from 'lucide-vue-next';
+import { Menu, Search, X } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 
 interface NavCategory {
@@ -18,6 +17,15 @@ interface SearchResult {
     price_cents: number;
     image: string | null;
 }
+
+const props = withDefaults(
+    defineProps<{
+        fullBleed?: boolean;
+    }>(),
+    {
+        fullBleed: false,
+    },
+);
 
 const page = usePage();
 const mobileMenuOpen = ref(false);
@@ -63,129 +71,214 @@ function closeSearch() {
 </script>
 
 <template>
-    <div class="min-h-screen bg-[#faf8f5] text-[#1a1a1a]">
-        <header class="sticky top-0 z-40 border-b border-stone-200 bg-[#faf8f5]/95 backdrop-blur">
-            <div class="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
+    <div class="flex min-h-screen flex-col bg-canvas font-sans text-ink">
+        <header class="bg-espresso text-canvas">
+            <div class="mx-auto flex max-w-[1240px] items-center justify-between gap-4 px-6 py-[26px] md:px-10">
                 <button
                     type="button"
-                    class="rounded-md p-2 text-stone-600 hover:bg-stone-100 md:hidden"
+                    class="p-1 text-[#C9BEA8] md:hidden"
+                    aria-label="Toggle menu"
                     @click="mobileMenuOpen = !mobileMenuOpen"
                 >
                     <Menu v-if="!mobileMenuOpen" class="h-5 w-5" />
                     <X v-else class="h-5 w-5" />
                 </button>
 
-                <Link :href="route('home')" class="text-lg font-semibold tracking-tight text-[#1a1a1a]">
+                <Link :href="route('home')" class="font-display text-[22px] font-[450] tracking-[0.5px] text-canvas">
                     {{ storeName }}
                 </Link>
 
-                <nav class="ml-4 hidden items-center gap-4 md:flex">
+                <nav class="ml-4 hidden items-center gap-9 text-sm tracking-[0.3px] md:flex">
                     <Link
                         v-for="category in navCategories"
                         :key="category.id"
                         :href="route('catalog.index', { category: category.slug })"
-                        class="text-sm text-stone-600 transition hover:text-teal-800"
+                        class="text-[#C9BEA8] transition-colors hover:text-brass"
                     >
                         {{ category.name }}
                     </Link>
                 </nav>
 
-                <div class="relative ml-auto w-full max-w-xs">
-                    <Search class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
-                    <Input
-                        v-model="searchQuery"
-                        type="search"
-                        placeholder="Search products..."
-                        class="pl-9"
-                        @input="onSearchInput"
-                        @focus="searchQuery.length >= 2 && searchResults.length && (searchOpen = true)"
-                        @blur="setTimeout(closeSearch, 150)"
-                    />
-                    <div
-                        v-if="searchOpen"
-                        class="absolute left-0 right-0 top-full z-50 mt-1 overflow-hidden rounded-md border border-stone-200 bg-white shadow-lg"
-                    >
-                        <Link
-                            v-for="result in searchResults"
-                            :key="result.id"
-                            :href="route('catalog.show', result.slug)"
-                            class="flex items-center gap-3 px-3 py-2 text-sm hover:bg-stone-50"
-                            @click="closeSearch"
+                <div class="flex items-center gap-4 text-[13px] sm:gap-6">
+                    <div class="relative hidden min-w-[200px] lg:block">
+                        <div
+                            class="flex items-center gap-2 border border-[#4A3A2C] px-3.5 py-2 text-[13px] text-[#8F8071]"
                         >
-                            <span class="line-clamp-1 flex-1">{{ result.title }}</span>
-                        </Link>
+                            <Search class="h-3.5 w-3.5 shrink-0" />
+                            <input
+                                v-model="searchQuery"
+                                type="search"
+                                placeholder="Search the collection…"
+                                class="w-full bg-transparent text-[13px] text-[#C9BEA8] outline-none placeholder:text-[#8F8071]"
+                                @input="onSearchInput"
+                                @focus="searchQuery.length >= 2 && searchResults.length && (searchOpen = true)"
+                                @blur="setTimeout(closeSearch, 150)"
+                            />
+                        </div>
+                        <div
+                            v-if="searchOpen"
+                            class="absolute left-0 right-0 top-full z-50 mt-1 border border-[#4A3A2C] bg-espresso"
+                        >
+                            <Link
+                                v-for="result in searchResults"
+                                :key="result.id"
+                                :href="route('catalog.show', result.slug)"
+                                class="flex items-center gap-3 px-3 py-2 text-sm text-[#C9BEA8] hover:text-brass"
+                                @click="closeSearch"
+                            >
+                                <span class="line-clamp-1 flex-1">{{ result.title }}</span>
+                            </Link>
+                        </div>
                     </div>
-                </div>
 
-                <Link :href="route('cart.index')" class="relative rounded-md p-2 text-stone-600 hover:bg-stone-100">
-                    <ShoppingCart class="h-5 w-5" />
-                    <span
-                        v-if="cartCount > 0"
-                        class="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-teal-800 px-1 text-[10px] font-medium text-white"
+                    <Link
+                        v-if="auth.user"
+                        :href="route('account.orders')"
+                        class="hidden text-[#C9BEA8] transition-colors hover:text-brass sm:inline"
                     >
-                        {{ cartCount > 99 ? '99+' : cartCount }}
-                    </span>
-                </Link>
+                        Account
+                    </Link>
+                    <Link
+                        v-else
+                        :href="route('login')"
+                        class="hidden text-[#C9BEA8] transition-colors hover:text-brass sm:inline"
+                    >
+                        Account
+                    </Link>
 
-                <div class="hidden items-center gap-2 sm:flex">
-                    <template v-if="auth.user">
-                        <Link :href="route('account.orders')" class="text-sm text-stone-600 hover:text-teal-800">Orders</Link>
-                        <Link v-if="auth.isAdmin" :href="route('admin.dashboard')" class="text-sm text-stone-600 hover:text-teal-800">Admin</Link>
-                    </template>
-                    <template v-else>
-                        <Link :href="route('login')" class="text-sm text-stone-600 hover:text-teal-800">Log in</Link>
-                        <Button as-child size="sm" class="bg-teal-800 hover:bg-teal-900">
-                            <Link :href="route('register')">Sign up</Link>
-                        </Button>
-                    </template>
+                    <Link :href="route('cart.index')" class="flex items-center gap-1.5 text-[#C9BEA8] transition-colors hover:text-brass">
+                        Cart
+                        <span
+                            v-if="cartCount > 0"
+                            class="flex h-4 w-4 items-center justify-center rounded-full bg-brass font-mono text-[10px] text-espresso"
+                        >
+                            {{ cartCount > 99 ? '99+' : cartCount }}
+                        </span>
+                    </Link>
                 </div>
             </div>
 
-            <nav v-if="mobileMenuOpen" class="border-t border-stone-200 px-4 py-3 md:hidden">
-                <div class="flex flex-col gap-2">
+            <nav v-if="mobileMenuOpen" class="border-t border-[#4A3A2C] px-6 py-4 md:hidden">
+                <div class="flex flex-col gap-3">
                     <Link
                         v-for="category in navCategories"
                         :key="category.id"
                         :href="route('catalog.index', { category: category.slug })"
-                        class="rounded-md px-2 py-1.5 text-sm text-stone-600 hover:bg-stone-100"
+                        class="text-sm text-[#C9BEA8] hover:text-brass"
                         @click="mobileMenuOpen = false"
                     >
                         {{ category.name }}
                     </Link>
-                    <Link :href="route('catalog.index')" class="rounded-md px-2 py-1.5 text-sm text-stone-600 hover:bg-stone-100" @click="mobileMenuOpen = false">
+                    <Link
+                        :href="route('catalog.index')"
+                        class="text-sm text-[#C9BEA8] hover:text-brass"
+                        @click="mobileMenuOpen = false"
+                    >
                         All products
                     </Link>
                     <template v-if="auth.user">
-                        <Link :href="route('account.orders')" class="rounded-md px-2 py-1.5 text-sm text-stone-600 hover:bg-stone-100" @click="mobileMenuOpen = false">My orders</Link>
-                        <Link :href="route('account.addresses')" class="rounded-md px-2 py-1.5 text-sm text-stone-600 hover:bg-stone-100" @click="mobileMenuOpen = false">Addresses</Link>
-                        <Link :href="route('account.wishlist')" class="rounded-md px-2 py-1.5 text-sm text-stone-600 hover:bg-stone-100" @click="mobileMenuOpen = false">Wishlist</Link>
+                        <Link
+                            :href="route('account.orders')"
+                            class="text-sm text-[#C9BEA8] hover:text-brass"
+                            @click="mobileMenuOpen = false"
+                        >
+                            My orders
+                        </Link>
+                        <Link
+                            v-if="auth.isAdmin"
+                            :href="route('admin.dashboard')"
+                            class="text-sm text-[#C9BEA8] hover:text-brass"
+                            @click="mobileMenuOpen = false"
+                        >
+                            Admin
+                        </Link>
                     </template>
                     <template v-else>
-                        <Link :href="route('login')" class="rounded-md px-2 py-1.5 text-sm text-stone-600 hover:bg-stone-100" @click="mobileMenuOpen = false">Log in</Link>
+                        <Link
+                            :href="route('login')"
+                            class="text-sm text-[#C9BEA8] hover:text-brass"
+                            @click="mobileMenuOpen = false"
+                        >
+                            Log in
+                        </Link>
                     </template>
                 </div>
             </nav>
         </header>
 
-        <div v-if="flash?.success" class="border-b border-teal-200 bg-teal-50 px-4 py-2 text-center text-sm text-teal-900">
+        <StitchDivider />
+
+        <div v-if="flash?.success" class="border-b border-brass/30 bg-espresso px-4 py-2 text-center text-sm text-canvas">
             {{ flash.success }}
         </div>
-        <div v-if="flash?.error" class="border-b border-red-200 bg-red-50 px-4 py-2 text-center text-sm text-red-900">
+        <div v-if="flash?.error" class="border-b border-oxblood/40 bg-oxblood/20 px-4 py-2 text-center text-sm text-oxblood">
             {{ flash.error }}
         </div>
 
-        <main class="mx-auto max-w-6xl px-4 py-6">
+        <main :class="props.fullBleed ? 'flex-1' : 'mx-auto w-full max-w-[1240px] flex-1 px-6 py-8 md:px-10'">
             <slot />
         </main>
 
-        <footer class="mt-auto border-t border-stone-200 bg-white">
-            <div class="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-8 sm:flex-row sm:items-center sm:justify-between">
-                <p class="text-sm text-stone-500">&copy; {{ new Date().getFullYear() }} {{ storeName }}</p>
-                <nav class="flex flex-wrap gap-4 text-sm">
-                    <Link :href="route('pages.show', 'about')" class="text-stone-600 hover:text-teal-800">About</Link>
-                    <Link :href="route('pages.show', 'returns-policy')" class="text-stone-600 hover:text-teal-800">Returns</Link>
-                    <Link :href="route('catalog.index')" class="text-stone-600 hover:text-teal-800">Shop</Link>
-                </nav>
+        <StitchDivider />
+
+        <footer class="bg-espresso px-6 pb-8 pt-14 text-[#C9BEA8] md:px-10">
+            <div class="mx-auto max-w-[1240px]">
+                <div class="grid grid-cols-2 gap-10 border-b border-[#4A3A2C] pb-11 md:grid-cols-4">
+                    <div class="col-span-2 md:col-span-1">
+                        <Link :href="route('home')" class="font-display text-[22px] font-[450] tracking-[0.5px] text-canvas">
+                            {{ storeName }}
+                        </Link>
+                        <p class="mt-3.5 max-w-[260px] text-[13px] leading-[22px] text-[#8F8071]">
+                            Full-grain leather goods, hand-cut and stitched in a small workshop in Islamabad. Built to be
+                            carried, not replaced.
+                        </p>
+                    </div>
+                    <div>
+                        <h5 class="mb-4 font-mono text-[11px] uppercase tracking-[2px] text-brass">Shop</h5>
+                        <Link
+                            v-for="category in navCategories.slice(0, 4)"
+                            :key="category.id"
+                            :href="route('catalog.index', { category: category.slug })"
+                            class="mb-2.5 block text-sm text-[#C9BEA8] hover:text-brass"
+                        >
+                            {{ category.name }}
+                        </Link>
+                        <Link :href="route('catalog.index')" class="mb-2.5 block text-sm text-[#C9BEA8] hover:text-brass">
+                            All products
+                        </Link>
+                    </div>
+                    <div>
+                        <h5 class="mb-4 font-mono text-[11px] uppercase tracking-[2px] text-brass">Care &amp; Returns</h5>
+                        <Link :href="route('pages.show', 'returns-policy')" class="mb-2.5 block text-sm text-[#C9BEA8] hover:text-brass">
+                            Returns &amp; Exchanges
+                        </Link>
+                        <Link :href="route('pages.show', 'about')" class="mb-2.5 block text-sm text-[#C9BEA8] hover:text-brass">
+                            Leather Care Guide
+                        </Link>
+                    </div>
+                    <div>
+                        <h5 class="mb-4 font-mono text-[11px] uppercase tracking-[2px] text-brass">About</h5>
+                        <Link :href="route('pages.show', 'about')" class="mb-2.5 block text-sm text-[#C9BEA8] hover:text-brass">
+                            Our Craft
+                        </Link>
+                        <Link :href="route('account.orders')" class="mb-2.5 block text-sm text-[#C9BEA8] hover:text-brass">
+                            Track Order
+                        </Link>
+                        <Link
+                            v-if="auth.isAdmin"
+                            :href="route('admin.dashboard')"
+                            class="mb-2.5 block text-sm text-[#C9BEA8] hover:text-brass"
+                        >
+                            Admin
+                        </Link>
+                    </div>
+                </div>
+                <div
+                    class="flex flex-col gap-3 pt-7 font-mono text-[11px] tracking-[1px] text-[#8F8071] sm:flex-row sm:items-center sm:justify-between"
+                >
+                    <span>&copy; {{ new Date().getFullYear() }} {{ storeName }} — Islamabad, Pakistan</span>
+                    <span>Handcrafted, Not Mass-Produced</span>
+                </div>
             </div>
         </footer>
     </div>

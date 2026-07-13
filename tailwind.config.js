@@ -12,7 +12,9 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Instrument Sans', ...defaultTheme.fontFamily.sans],
+                display: ['Fraunces', 'Georgia', 'serif'],
+                sans: ['Inter', ...defaultTheme.fontFamily.sans],
+                mono: ['"IBM Plex Mono"', ...defaultTheme.fontFamily.mono],
             },
             borderRadius: {
                 lg: 'var(--radius)',
@@ -20,6 +22,33 @@ export default {
                 sm: 'calc(var(--radius) - 4px)',
             },
             colors: {
+                // Atelier brand tokens — source of truth for storefront
+                espresso: '#2A1D16',
+                canvas: '#E8E1D3',
+                cognac: '#8C5A2B',
+                oxblood: '#5C1F22',
+                brass: '#A6874F',
+                ink: '#1C1815',
+                // Supporting neutrals from the Atelier reference :root
+                hairline: '#C9BBA1',
+                'canvas-dim': '#DED5C1',
+                // Reference --stone as DEFAULT/500; keep a full scale so admin stone-* utilities still work
+                stone: {
+                    DEFAULT: '#8A7D6C',
+                    50: '#fafaf9',
+                    100: '#f5f5f4',
+                    200: '#e7e5e4',
+                    300: '#d6d3d1',
+                    400: '#a8a29e',
+                    500: '#8A7D6C',
+                    600: '#57534e',
+                    700: '#44403c',
+                    800: '#292524',
+                    900: '#1c1917',
+                    950: '#0c0a09',
+                },
+                'atelier-stone': '#8A7D6C',
+
                 background: 'hsl(var(--background))',
                 foreground: 'hsl(var(--foreground))',
                 card: {
