@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import RichTextEditor from '@/components/RichTextEditor.vue';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -57,8 +58,8 @@ function destroyPage() {
                 <Input id="slug" v-model="form.slug" required />
             </div>
             <div class="space-y-2">
-                <Label for="body">Body (HTML)</Label>
-                <textarea id="body" v-model="form.body" rows="10" class="flex w-full rounded-md border border-input bg-background px-3 py-2 font-mono text-sm" />
+                <Label for="body">Body</Label>
+                <RichTextEditor id="body" v-model="form.body" />
             </div>
             <div class="space-y-2">
                 <Label for="seo_title">SEO title</Label>
