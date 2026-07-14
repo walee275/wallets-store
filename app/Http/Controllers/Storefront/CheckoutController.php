@@ -45,9 +45,18 @@ class CheckoutController extends Controller
             ? $request->user()->addresses()->orderByDesc('is_default')->get()
             : collect();
 
+        $shippingRateId = $request->session()->get('checkout.shipping_rate_id');
+
+        // Persist the cheapest available rate when nothing is stored yet, so the
+        // UI default and place-order session check stay in sync.
+        if (! $shippingRateId && $shippingRates->isNotEmpty()) {
+            $shippingRateId = $shippingRates->first()->id;
+            $request->session()->put('checkout.shipping_rate_id', $shippingRateId);
+        }
+
         $checkoutState = [
             'address' => $request->session()->get('checkout.address'),
-            'shipping_rate_id' => $request->session()->get('checkout.shipping_rate_id'),
+            'shipping_rate_id' => $shippingRateId,
             'discount_code' => $request->session()->get('checkout.discount_code'),
         ];
 
@@ -107,7 +116,10 @@ class CheckoutController extends Controller
     ): RedirectResponse {
         $cart = $resolveCart->handle();
         $address = $request->session()->get('checkout.address');
-        $shippingRateId = $request->session()->get('checkout.shipping_rate_id');
+
+        // Prefer an explicit selection from the place-order form, then session.
+        $shippingRateId = $request->integer('shipping_rate_id')
+            ?: $request->session()->get('checkout.shipping_rate_id');
 
         if (! is_array($address) || empty($address)) {
             return back()->withErrors(['address' => 'Please provide a shipping address.']);
@@ -116,6 +128,8 @@ class CheckoutController extends Controller
         if (! $shippingRateId) {
             return back()->withErrors(['shipping_rate_id' => 'Please select a shipping method.']);
         }
+
+        $request->session()->put('checkout.shipping_rate_id', (int) $shippingRateId);
 
         $email = $request->user()?->email ?? $request->string('email')->toString();
         $billingAddress = $request->boolean('billing_same_as_shipping', true)

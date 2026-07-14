@@ -30,6 +30,11 @@ class CheckoutPlaceRequest extends FormRequest
                 'string',
                 Rule::exists('payment_methods', 'driver')->where('is_enabled', true),
             ],
+            'shipping_rate_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('shipping_rates', 'id')->where('is_active', true),
+            ],
             'billing_same_as_shipping' => ['sometimes', 'boolean'],
             'billing_address' => [
                 Rule::requiredIf(! $this->boolean('billing_same_as_shipping', true)),
