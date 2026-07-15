@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign In — Hartlow & Co.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,450;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --espresso: #2A1D16;
+    --canvas: #E8E1D3;
+    --cognac: #8C5A2B;
+    --oxblood: #5C1F22;
+    --brass: #A6874F;
+    --ink: #1C1815;
+    --stone: #8A7D6C;
+    --hairline: #C9BBA1;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: 'Inter', Helvetica, Arial, sans-serif;
+    color: var(--ink);
+    min-height:100vh;
+  }
+  a { color:inherit; }
+
+  .screen {
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    min-height:100vh;
+  }
+
+  /* ---------- LEFT: TEXTURE / BRAND PANEL ---------- */
+  .brand-panel {
+    position:relative;
+    background:
+      radial-gradient(ellipse 700px 500px at 20% 15%, rgba(140,90,43,0.35), transparent 60%),
+      radial-gradient(ellipse 600px 500px at 85% 85%, rgba(92,31,34,0.3), transparent 55%),
+      repeating-radial-gradient(circle at 50% 50%, rgba(0,0,0,0.06) 0, rgba(0,0,0,0.06) 1px, transparent 2px, transparent 4px),
+      linear-gradient(160deg, #241811 0%, #2E2016 45%, #201509 100%);
+    color: var(--canvas);
+    display:flex; flex-direction:column; justify-content:space-between;
+    padding: 52px;
+  }
+  .brand-panel::after {
+    content:"";
+    position:absolute; inset:0;
+    background: linear-gradient(0deg, rgba(20,13,9,0.5) 0%, rgba(20,13,9,0) 40%);
+  }
+  .brand-top, .brand-bottom { position:relative; z-index:2; }
+  .wordmark {
+    font-family:'Fraunces', serif; font-size:22px; letter-spacing:0.5px; font-weight:450;
+  }
+  .brand-quote {
+    font-family:'Fraunces', serif; font-size:30px; font-weight:450; line-height:1.35;
+    max-width:420px;
+  }
+  .brand-quote span { color: var(--brass); }
+  .brand-attribution {
+    margin-top:20px; font-family:'IBM Plex Mono', monospace; font-size:11px;
+    letter-spacing:1.5px; color:#B7A98C; text-transform:uppercase;
+  }
+  .vstitch {
+    position:absolute; left:0; top:0; bottom:0; width:5px; z-index:2;
+    background:
+      repeating-linear-gradient(to bottom, var(--brass) 0 8px, transparent 8px 16px) left / 1px 100% no-repeat,
+      repeating-linear-gradient(to bottom, var(--brass) 0 8px, transparent 8px 16px) right / 1px 100% no-repeat;
+    opacity:0.7;
+  }
+
+  /* ---------- RIGHT: FORM PANEL ---------- */
+  .form-panel {
+    background: var(--canvas);
+    display:flex; align-items:center; justify-content:center;
+    padding: 40px;
+  }
+  .form-box { width:100%; max-width: 380px; }
+  .form-eyebrow {
+    font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:2.5px;
+    color: var(--stone); text-transform:uppercase; margin-bottom:14px;
+  }
+  .form-box h1 {
+    font-family:'Fraunces', serif; font-size:34px; font-weight:450; color:var(--ink);
+    margin-bottom:10px;
+  }
+  .form-sub {
+    font-size:14px; color:var(--stone); line-height:22px; margin-bottom:36px;
+  }
+  .form-sub a { color:var(--oxblood); border-bottom:1px solid var(--oxblood); }
+
+  .field { margin-bottom:22px; }
+  .field label {
+    display:block; font-family:'IBM Plex Mono', monospace; font-size:11px;
+    letter-spacing:1.5px; text-transform:uppercase; color: var(--ink);
+    margin-bottom:9px;
+  }
+  .field input[type="email"],
+  .field input[type="password"] {
+    width:100%; border:1px solid var(--hairline); background:transparent;
+    padding:13px 14px; font-size:15px; font-family:'Inter',sans-serif; color:var(--ink);
+    outline:none; transition: border-color .15s ease;
+  }
+  .field input:focus { border-color: var(--cognac); }
+  .field-error {
+    margin-top:8px; font-family:'IBM Plex Mono', monospace; font-size:11px;
+    color: var(--oxblood); letter-spacing:0.3px;
+  }
+
+  .row-between {
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:30px; font-size:13px;
+  }
+  .remember { display:flex; align-items:center; gap:9px; color:var(--stone); }
+  .remember input { accent-color: var(--cognac); width:15px; height:15px; }
+  .forgot-link { color: var(--oxblood); border-bottom:1px solid var(--oxblood); padding-bottom:1px; }
+
+  .btn-primary {
+    width:100%; background: var(--cognac); color:#F5EFE3; border:none;
+    padding:16px; font-size:13px; letter-spacing:1.5px; text-transform:uppercase;
+    font-weight:600; cursor:pointer; transition: background .2s ease;
+    font-family:'Inter', sans-serif;
+  }
+  .btn-primary:hover { background:#7A4B22; }
+
+  .hairline-divider {
+    display:flex; align-items:center; gap:14px; margin:34px 0;
+    font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:1.5px;
+    color: var(--stone); text-transform:uppercase;
+  }
+  .hairline-divider::before, .hairline-divider::after {
+    content:""; flex:1; height:1px; background: var(--hairline);
+  }
+
+  .form-footer {
+    font-size:13px; color:var(--stone); text-align:center;
+  }
+  .form-footer a { color: var(--ink); border-bottom:1px solid var(--ink); }
+
+  @media (max-width: 860px) {
+    .screen { grid-template-columns: 1fr; }
+    .brand-panel { min-height: 220px; padding:36px; }
+    .brand-quote { font-size:20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="screen">
+
+  <!-- LEFT: brand/texture panel — reuses the same hero treatment as the homepage -->
+  <div class="brand-panel">
+    <div class="vstitch"></div>
+    <div class="brand-top">
+      <div class="wordmark">HARTLOW &amp; CO.</div>
+    </div>
+    <div class="brand-bottom">
+      <div class="brand-quote">
+        <span>“</span>Full-grain leather doesn't wear out — it wears in.<span>”</span>
+      </div>
+      <div class="brand-attribution">From the Workshop Floor, Islamabad</div>
+    </div>
+  </div>
+
+  <!-- RIGHT: the actual login form -->
+  <div class="form-panel">
+    <div class="form-box">
+      <div class="form-eyebrow">Account Access</div>
+      <h1>Welcome back</h1>
+      <p class="form-sub">Sign in to track orders, save addresses, and reorder your essentials. New here? <a href="#">Create an account</a></p>
+
+      <form>
+        <div class="field">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" placeholder="you@example.com">
+          <!-- Example error state, shown only when validation fails:
+          <div class="field-error">We couldn't find an account with that email.</div>
+          -->
+        </div>
+
+        <div class="field">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="••••••••••">
+        </div>
+
+        <div class="row-between">
+          <label class="remember">
+            <input type="checkbox"> Remember me
+          </label>
+          <a href="#" class="forgot-link">Forgot password?</a>
+        </div>
+
+        <button type="submit" class="btn-primary">Sign In</button>
+      </form>
+
+      <div class="hairline-divider">New to Hartlow</div>
+
+      <div class="form-footer">
+        Don't have an account yet? <a href="#">Create one</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

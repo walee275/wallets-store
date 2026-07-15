@@ -1,12 +1,16 @@
 <script setup lang="ts">
-defineProps<{
+import { cn } from '@/lib/utils';
+import type { HTMLAttributes } from 'vue';
+
+const props = defineProps<{
     message?: string;
+    class?: HTMLAttributes['class'];
 }>();
 </script>
 
 <template>
     <div v-show="message">
-        <p class="text-sm text-red-600 dark:text-red-500">
+        <p :class="cn('text-sm text-red-600 dark:text-red-500', props.class)">
             {{ message }}
         </p>
     </div>
