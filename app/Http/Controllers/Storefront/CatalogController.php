@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductVariant;
+use App\Support\Money;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -33,7 +34,7 @@ class CatalogController extends Controller
             $query->whereHas('variants', fn ($q) => $q
                 ->where('is_default', true)
                 ->where('is_active', true)
-                ->where('price_cents', '>=', $request->integer('min_price'))
+                ->where('price_cents', '>=', Money::fromMajor($request->input('min_price')))
             );
         }
 
@@ -41,7 +42,7 @@ class CatalogController extends Controller
             $query->whereHas('variants', fn ($q) => $q
                 ->where('is_default', true)
                 ->where('is_active', true)
-                ->where('price_cents', '<=', $request->integer('max_price'))
+                ->where('price_cents', '<=', Money::fromMajor($request->input('max_price')))
             );
         }
 

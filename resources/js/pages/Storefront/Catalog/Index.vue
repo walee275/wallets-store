@@ -98,12 +98,12 @@ function applyFilters() {
 
                     <div class="grid grid-cols-2 gap-2">
                         <div class="space-y-2">
-                            <Label for="min_price">Min (cents)</Label>
-                            <Input id="min_price" v-model="form.min_price" type="number" min="0" />
+                            <Label for="min_price">Min price (Rs)</Label>
+                            <Input id="min_price" v-model="form.min_price" type="number" min="0" step="0.01" />
                         </div>
                         <div class="space-y-2">
-                            <Label for="max_price">Max (cents)</Label>
-                            <Input id="max_price" v-model="form.max_price" type="number" min="0" />
+                            <Label for="max_price">Max price (Rs)</Label>
+                            <Input id="max_price" v-model="form.max_price" type="number" min="0" step="0.01" />
                         </div>
                     </div>
 
