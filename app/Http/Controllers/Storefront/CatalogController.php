@@ -18,7 +18,7 @@ class CatalogController extends Controller
             ->active()
             ->with([
                 'variants' => fn ($q) => $q->where('is_default', true)->where('is_active', true),
-                'images' => fn ($q) => $q->where('is_primary', true)->orderBy('position'),
+                'primaryImage',
                 'categories',
             ]);
 
@@ -71,7 +71,6 @@ class CatalogController extends Controller
 
         $products->getCollection()->transform(function (Product $product) {
             $product->setRelation('defaultVariant', $product->variants->first());
-            $product->setRelation('primaryImage', $product->images->first());
 
             return $product;
         });
@@ -96,7 +95,7 @@ class CatalogController extends Controller
             ->with([
                 'variants' => fn ($q) => $q->where('is_active', true)->orderBy('is_default', 'desc'),
                 'variants.optionValues.optionType',
-                'images' => fn ($q) => $q->orderBy('position'),
+                'images' => fn ($q) => $q->orderByDesc('is_primary')->orderBy('position'),
                 'reviews' => fn ($q) => $q
                     ->where('is_approved', true)
                     ->with('user:id,name')
@@ -116,14 +115,13 @@ class CatalogController extends Controller
             )
             ->with([
                 'variants' => fn ($q) => $q->where('is_default', true)->where('is_active', true),
-                'images' => fn ($q) => $q->where('is_primary', true)->orderBy('position'),
+                'primaryImage',
             ])
             ->limit(4)
             ->get();
 
         $relatedProducts->transform(function (Product $related) {
             $related->setRelation('defaultVariant', $related->variants->first());
-            $related->setRelation('primaryImage', $related->images->first());
 
             return $related;
         });

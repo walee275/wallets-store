@@ -18,7 +18,7 @@ class HomeController extends Controller
                 $query->active()
                     ->with([
                         'variants' => fn ($q) => $q->where('is_default', true)->where('is_active', true),
-                        'images' => fn ($q) => $q->where('is_primary', true)->orderBy('position'),
+                        'primaryImage',
                     ])
                     ->orderByPivot('position')
                     ->limit(4);
@@ -30,7 +30,6 @@ class HomeController extends Controller
             ->values()
             ->map(function ($product) {
                 $product->setRelation('defaultVariant', $product->variants->first());
-                $product->setRelation('primaryImage', $product->images->first());
 
                 return $product;
             });

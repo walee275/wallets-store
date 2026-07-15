@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import InputError from '@/components/InputError.vue';
-import ProductCard from '@/components/storefront/ProductCard.vue';
+import ProductCard from '@/components/Storefront/ProductCard.vue';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { useFormatMoney } from '@/composables/useFormatMoney';
@@ -122,7 +122,11 @@ function selectVariant(variantId: number) {
                             :key="variant.id"
                             type="button"
                             class="rounded-md border px-3 py-1.5 text-sm transition"
-                            :class="variant.id === selectedVariantId ? 'border-teal-800 bg-teal-50 text-teal-900' : 'border-stone-200 hover:border-stone-300'"
+                            :class="
+                                variant.id === selectedVariantId
+                                    ? 'border-teal-800 bg-teal-50 text-teal-900'
+                                    : 'border-stone-200 hover:border-stone-300'
+                            "
                             :disabled="variant.stock_quantity <= 0"
                             @click="selectVariant(variant.id)"
                         >

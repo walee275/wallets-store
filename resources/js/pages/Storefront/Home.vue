@@ -28,7 +28,9 @@ interface Product {
     title: string;
     slug: string;
     brand?: string | null;
+    default_variant?: { id: number; price_cents: number; compare_at_cents?: number | null } | null;
     defaultVariant?: { id: number; price_cents: number; compare_at_cents?: number | null } | null;
+    primary_image?: { path: string; alt?: string | null } | null;
     primaryImage?: { path: string; alt?: string | null } | null;
 }
 
@@ -56,15 +58,13 @@ const collectionHref = computed(() => route('catalog.index'));
                 <p class="mb-[22px] font-mono text-xs uppercase tracking-[3px] text-brass">
                     Full-Grain &nbsp;·&nbsp; Vegetable-Tanned &nbsp;·&nbsp; Hand-Stitched
                 </p>
-                <h1
-                    class="max-w-[640px] font-display text-[38px] font-[450] leading-[1.05] tracking-[-0.5px] text-canvas md:text-[58px]"
-                >
+                <h1 class="max-w-[640px] font-display text-[38px] font-[450] leading-[1.05] tracking-[-0.5px] text-canvas md:text-[58px]">
                     Cut once.<br />
                     Carried for decades.
                 </h1>
                 <p class="mt-[22px] max-w-[460px] text-base leading-[26px] text-[#C9BEA8]">
-                    Every wallet begins as a single hide, selected by hand and stitched saddle-tight by our small
-                    workshop in Islamabad — built to age into something better than new.
+                    Every wallet begins as a single hide, selected by hand and stitched saddle-tight by our small workshop in Islamabad — built to age
+                    into something better than new.
                 </p>
                 <div class="mt-[34px] flex flex-wrap items-center gap-7">
                     <Link
@@ -73,12 +73,7 @@ const collectionHref = computed(() => route('catalog.index'));
                     >
                         Shop the Foundry Collection
                     </Link>
-                    <a
-                        href="#craft"
-                        class="border-b border-brass pb-[3px] text-[13px] tracking-[0.5px] text-canvas"
-                    >
-                        See how it's made →
-                    </a>
+                    <a href="#craft" class="border-b border-brass pb-[3px] text-[13px] tracking-[0.5px] text-canvas"> See how it's made → </a>
                 </div>
             </div>
         </section>
@@ -86,9 +81,7 @@ const collectionHref = computed(() => route('catalog.index'));
         <!-- SHOP BY CATEGORY -->
         <section v-if="categories.length" class="py-[84px]">
             <div class="mx-auto mb-10 max-w-[1240px] px-6 md:px-10">
-                <p class="mb-2.5 font-mono text-[11px] uppercase tracking-[2.5px] text-atelier-stone">
-                    Shop by category
-                </p>
+                <p class="mb-2.5 font-mono text-[11px] uppercase tracking-[2.5px] text-atelier-stone">Shop by category</p>
                 <h2 class="font-display text-[32px] font-[450] text-ink">Three forms, one standard</h2>
             </div>
             <div class="grid grid-cols-1 gap-0.5 bg-hairline sm:grid-cols-2 md:grid-cols-3">
@@ -106,19 +99,12 @@ const collectionHref = computed(() => route('catalog.index'));
             <div class="mx-auto max-w-[1240px] px-6 md:px-10">
                 <div class="mb-10 flex items-baseline justify-between gap-4">
                     <div>
-                        <p class="mb-2.5 font-mono text-[11px] uppercase tracking-[2.5px] text-atelier-stone">
-                            Most carried
-                        </p>
+                        <p class="mb-2.5 font-mono text-[11px] uppercase tracking-[2.5px] text-atelier-stone">Most carried</p>
                         <h2 class="font-display text-[32px] font-[450] text-ink">
                             {{ featuredCollection?.name ?? 'Bestsellers' }}
                         </h2>
                     </div>
-                    <Link
-                        :href="route('catalog.index')"
-                        class="shrink-0 border-b border-oxblood pb-0.5 text-[13px] text-oxblood"
-                    >
-                        View all →
-                    </Link>
+                    <Link :href="route('catalog.index')" class="shrink-0 border-b border-oxblood pb-0.5 text-[13px] text-oxblood"> View all → </Link>
                 </div>
 
                 <div v-if="featuredProducts.length" class="grid grid-cols-2 gap-5 md:grid-cols-3 md:gap-8 lg:grid-cols-4">
@@ -126,10 +112,7 @@ const collectionHref = computed(() => route('catalog.index'));
                 </div>
                 <div v-else class="border border-dashed border-hairline px-6 py-12 text-center">
                     <p class="text-atelier-stone">No featured products yet.</p>
-                    <Link
-                        :href="route('catalog.index')"
-                        class="mt-3 inline-block border-b border-cognac pb-0.5 text-sm text-cognac"
-                    >
+                    <Link :href="route('catalog.index')" class="mt-3 inline-block border-b border-cognac pb-0.5 text-sm text-cognac">
                         Browse catalog
                     </Link>
                 </div>
@@ -143,16 +126,14 @@ const collectionHref = computed(() => route('catalog.index'));
                     <p class="font-mono text-xs tracking-[2px] text-brass">01 — Select</p>
                     <h3 class="mt-3.5 font-display text-xl font-[450]">One hide, hand-chosen</h3>
                     <p class="mt-2.5 text-sm leading-[22px] text-[#B7A98C]">
-                        Every piece starts with a single full-grain hide, inspected for grain consistency before a
-                        single cut is made.
+                        Every piece starts with a single full-grain hide, inspected for grain consistency before a single cut is made.
                     </p>
                 </div>
                 <div>
                     <p class="font-mono text-xs tracking-[2px] text-brass">02 — Cut &amp; Stitch</p>
                     <h3 class="mt-3.5 font-display text-xl font-[450]">Saddle-stitched by hand</h3>
                     <p class="mt-2.5 text-sm leading-[22px] text-[#B7A98C]">
-                        Our workshop hand-stitches every seam using waxed thread — slower than machine stitching, and
-                        far stronger.
+                        Our workshop hand-stitches every seam using waxed thread — slower than machine stitching, and far stronger.
                     </p>
                 </div>
                 <div>

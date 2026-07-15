@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import { onBeforeUnmount, ref } from 'vue';
 
 interface Category {
     id: number;
@@ -28,7 +29,7 @@ const form = useForm({
     status: 'draft',
     brand: '',
     category_ids: [] as number[],
-    image: null as File | null,
+    images: [] as File[],
     default_variant: {
         sku: '',
         price: 0,
@@ -36,14 +37,34 @@ const form = useForm({
     },
 });
 
+const imagePreviews = ref<{ url: string; name: string }[]>([]);
+const imageInput = ref<HTMLInputElement | null>(null);
+
 function submit() {
     form.post(route('admin.products.store'), { forceFormData: true });
 }
 
-function onImageChange(event: Event) {
-    const file = (event.target as HTMLInputElement).files?.[0];
-    form.image = file ?? null;
+function onImagesChange(event: Event) {
+    const files = Array.from((event.target as HTMLInputElement).files ?? []);
+    form.images = files;
+
+    imagePreviews.value.forEach((preview) => URL.revokeObjectURL(preview.url));
+    imagePreviews.value = files.map((file) => ({ url: URL.createObjectURL(file), name: file.name }));
 }
+
+function removeSelectedImage(index: number) {
+    URL.revokeObjectURL(imagePreviews.value[index]!.url);
+    imagePreviews.value.splice(index, 1);
+    form.images.splice(index, 1);
+
+    if (form.images.length === 0 && imageInput.value) {
+        imageInput.value.value = '';
+    }
+}
+
+onBeforeUnmount(() => {
+    imagePreviews.value.forEach((preview) => URL.revokeObjectURL(preview.url));
+});
 
 function toggleCategory(id: number) {
     const index = form.category_ids.indexOf(id);
@@ -114,8 +135,36 @@ function toggleCategory(id: number) {
             </div>
 
             <div class="space-y-2">
-                <Label for="image">Product image</Label>
-                <Input id="image" type="file" accept="image/*" @change="onImageChange" />
+                <Label for="images">Product images</Label>
+                <input
+                    id="images"
+                    ref="imageInput"
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium"
+                    @change="onImagesChange"
+                />
+                <InputError :message="form.errors.images" />
+                <InputError v-for="(message, key) in form.errors" v-show="String(key).startsWith('images.')" :key="key" :message="message" />
+            </div>
+
+            <div v-if="imagePreviews.length" class="space-y-2">
+                <Label>Selected images ({{ imagePreviews.length }})</Label>
+                <div class="flex flex-wrap gap-3">
+                    <div v-for="(preview, index) in imagePreviews" :key="preview.url" class="group relative">
+                        <img :src="preview.url" :alt="preview.name" class="h-24 w-24 rounded-md border border-stone-200 object-cover" />
+                        <button
+                            type="button"
+                            class="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-stone-800 text-xs text-white hover:bg-red-600"
+                            :aria-label="`Remove ${preview.name}`"
+                            @click="removeSelectedImage(index)"
+                        >
+                            ×
+                        </button>
+                        <p class="mt-1 w-24 truncate text-xs text-stone-500">{{ preview.name }}</p>
+                    </div>
+                </div>
             </div>
 
             <Button type="submit" class="bg-teal-800 hover:bg-teal-900" :disabled="form.processing">Create product</Button>

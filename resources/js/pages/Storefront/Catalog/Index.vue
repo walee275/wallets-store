@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import ProductCard from '@/components/storefront/ProductCard.vue';
-import PaginationLinks from '@/components/storefront/PaginationLinks.vue';
+import ProductCard from '@/components/Storefront/ProductCard.vue';
+import PaginationLinks from '@/components/Storefront/PaginationLinks.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -18,7 +18,9 @@ interface Product {
     id: number;
     title: string;
     slug: string;
-    defaultVariant?: { price_cents: number } | null;
+    default_variant?: { id: number; price_cents: number } | null;
+    defaultVariant?: { id: number; price_cents: number } | null;
+    primary_image?: { path: string } | null;
     primaryImage?: { path: string } | null;
 }
 

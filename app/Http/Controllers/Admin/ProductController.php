@@ -88,8 +88,8 @@ class ProductController extends Controller
                 $product->categories()->sync($data['category_ids']);
             }
 
-            if ($request->hasFile('image')) {
-                $this->storeProductImage($product, $request->file('image'));
+            if ($request->hasFile('images')) {
+                $this->storeProductImages($product, $request->file('images'));
             }
         });
 
@@ -139,8 +139,25 @@ class ProductController extends Controller
 
             $product->categories()->sync($data['category_ids'] ?? []);
 
-            if ($request->hasFile('image')) {
-                $this->storeProductImage($product, $request->file('image'));
+            if (! empty($data['removed_image_ids'])) {
+                $this->removeProductImages($product, $data['removed_image_ids']);
+            }
+
+            $uploadedImageIds = [];
+
+            if ($request->hasFile('images')) {
+                $uploadedImageIds = $this->storeProductImages($product, $request->file('images'));
+            }
+
+            $primaryImageId = $data['primary_image_id'] ?? null;
+            $uploadIndex = $data['primary_image_upload_index'] ?? null;
+
+            if ($uploadIndex !== null && isset($uploadedImageIds[$uploadIndex])) {
+                $primaryImageId = $uploadedImageIds[$uploadIndex];
+            }
+
+            if ($primaryImageId !== null) {
+                $this->setPrimaryProductImage($product, (int) $primaryImageId);
             }
         });
 
@@ -305,25 +322,77 @@ class ProductController extends Controller
         ];
     }
 
-    protected function storeProductImage(Product $product, UploadedFile $file): void
+    /**
+     * @param  array<int, UploadedFile>  $files
+     * @return array<int, int>
+     */
+    protected function storeProductImages(Product $product, array $files): array
     {
         $disk = Storage::disk(config('media.disk', 'public'));
-        $filename = Str::uuid().'.'.$file->getClientOriginalExtension();
-        $path = 'products/'.$filename;
+        $position = (int) $product->images()->max('position') + 1;
+        $hasPrimary = $product->images()->where('is_primary', true)->exists();
+        $imageIds = [];
 
-        $image = Image::decode($file)->scaleDown(1200, 1200);
-        $disk->put($path, (string) $image->encodeUsingFileExtension($file->getClientOriginalExtension() ?: 'jpg'));
+        foreach ($files as $file) {
+            $extension = $file->getClientOriginalExtension() ?: 'jpg';
+            $path = 'products/'.Str::uuid().'.'.$extension;
 
-        $product->images()->update(['is_primary' => false]);
+            $image = Image::decode($file)->scaleDown(1200, 1200);
+            $disk->put($path, (string) $image->encodeUsingFileExtension($extension));
 
-        $productImage = ProductImage::query()->create([
-            'product_id' => $product->id,
-            'path' => $path,
-            'alt' => $product->title,
-            'position' => 0,
-            'is_primary' => true,
-        ]);
+            $productImage = ProductImage::query()->create([
+                'product_id' => $product->id,
+                'path' => $path,
+                'alt' => $product->title,
+                'position' => $position++,
+                'is_primary' => ! $hasPrimary,
+            ]);
 
-        ProductEmailImage::generateThumb($productImage);
+            $hasPrimary = true;
+            $imageIds[] = $productImage->id;
+
+            ProductEmailImage::generateThumb($productImage);
+        }
+
+        return $imageIds;
+    }
+
+    /**
+     * @param  array<int, int>  $imageIds
+     */
+    protected function removeProductImages(Product $product, array $imageIds): void
+    {
+        $disk = Storage::disk(config('media.disk', 'public'));
+        $images = $product->images()->whereKey($imageIds)->get();
+        $removedPrimary = $images->contains('is_primary', true);
+
+        foreach ($images as $image) {
+            $disk->delete(array_filter([
+                $image->path,
+                $image->email_thumb_path,
+            ]));
+
+            $image->delete();
+        }
+
+        if ($removedPrimary) {
+            $product->images()
+                ->orderBy('position')
+                ->orderBy('id')
+                ->first()
+                ?->update(['is_primary' => true]);
+        }
+    }
+
+    protected function setPrimaryProductImage(Product $product, int $imageId): void
+    {
+        $image = $product->images()->whereKey($imageId)->first();
+
+        if (! $image) {
+            return;
+        }
+
+        $product->images()->where('is_primary', true)->update(['is_primary' => false]);
+        $image->update(['is_primary' => true]);
     }
 }

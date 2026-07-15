@@ -25,7 +25,9 @@ interface Product {
     title: string;
     slug: string;
     brand?: string | null;
+    default_variant?: ProductVariant | null;
     defaultVariant?: ProductVariant | null;
+    primary_image?: ProductImage | null;
     primaryImage?: ProductImage | null;
     /** Optional color/material hints from homepage mapping */
     leatherColor?: string | null;
@@ -55,10 +57,7 @@ const colorLabel = computed(() => {
 });
 
 const swatchKey = computed<SwatchKey>(() => {
-    const haystack = [colorLabel.value, props.product.title, props.product.brand]
-        .filter(Boolean)
-        .join(' ')
-        .toLowerCase();
+    const haystack = [colorLabel.value, props.product.title, props.product.brand].filter(Boolean).join(' ').toLowerCase();
 
     if (/(oxblood|burgundy|wine|crimson)/.test(haystack)) {
         return 'oxblood';
@@ -96,9 +95,11 @@ const tagLabel = computed(() => {
 });
 
 const meta = computed(() => props.product.leatherMeta ?? props.product.brand ?? null);
+const defaultVariant = computed(() => props.product.default_variant ?? props.product.defaultVariant ?? null);
+const primaryImage = computed(() => props.product.primary_image ?? props.product.primaryImage ?? null);
 
 const imageUrl = computed(() => {
-    const path = props.product.primaryImage?.path;
+    const path = primaryImage.value?.path;
     if (!path) {
         return null;
     }
@@ -115,7 +116,7 @@ const imageUrl = computed(() => {
             <img
                 v-if="imageUrl"
                 :src="imageUrl"
-                :alt="product.primaryImage?.alt ?? product.title"
+                :alt="primaryImage?.alt ?? product.title"
                 class="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]"
             />
             <template v-else>
@@ -138,8 +139,8 @@ const imageUrl = computed(() => {
             <p v-if="meta" class="mt-1 font-mono text-[11px] tracking-[0.5px] text-atelier-stone">
                 {{ meta }}
             </p>
-            <p v-if="product.defaultVariant" class="mt-2.5 font-mono text-[13px] text-ink">
-                {{ formatMoney(product.defaultVariant.price_cents) }}
+            <p v-if="defaultVariant" class="mt-2.5 font-mono text-[13px] text-ink">
+                {{ formatMoney(defaultVariant.price_cents) }}
             </p>
         </div>
     </Link>
