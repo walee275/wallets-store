@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\NewOrderAdminMail;
 use App\Mail\OrderConfirmedMail;
 use App\Mail\OrderDeliveredMail;
 use App\Mail\OrderShippedMail;
@@ -41,6 +42,7 @@ class MailPreviewController extends Controller
             'order-shipped', 'shipped' => new OrderShippedMail($order),
             'order-delivered', 'delivered' => new OrderDeliveredMail($order, reviewUrl: url('/')),
             'payment-failed', 'failed' => new PaymentFailedMail($order),
+            'new-order-admin', 'admin' => new NewOrderAdminMail($order),
             default => throw new NotFoundHttpException,
         };
 

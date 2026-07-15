@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Mail\NewOrderAdminMail;
 use App\Mail\OrderConfirmedMail;
 use App\Mail\OrderDeliveredMail;
 use App\Mail\OrderShippedMail;
@@ -35,6 +36,7 @@ class PreviewOrderMailsCommand extends Command
             'order-shipped' => new OrderShippedMail($order),
             'order-delivered' => new OrderDeliveredMail($order, reviewUrl: url('/')),
             'payment-failed' => new PaymentFailedMail($order, retryUrl: route('checkout.confirmation', $order)),
+            'new-order-admin' => new NewOrderAdminMail($order),
         ];
 
         $this->info('Rendering emails for order '.$order->number.'…');

@@ -2,8 +2,10 @@
 
 namespace App\Jobs;
 
+use App\Mail\NewOrderAdminMail;
 use App\Mail\OrderConfirmedMail;
 use App\Models\Order;
+use App\Models\User;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
@@ -31,5 +33,27 @@ class SendOrderConfirmation implements ShouldQueue
         ]);
 
         Mail::to($this->order->email)->send(new OrderConfirmedMail($this->order));
+
+        $adminEmails = User::query()
+            ->where('type', 'admin')
+            ->where('is_active', true)
+            ->whereNotNull('email')
+            ->pluck('email')
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        if ($adminEmails === []) {
+            return;
+        }
+
+        Log::info('Sending new order admin notification', [
+            'order_id' => $this->order->id,
+            'order_number' => $this->order->number,
+            'admin_count' => count($adminEmails),
+        ]);
+
+        Mail::to($adminEmails)->send(new NewOrderAdminMail($this->order));
     }
 }

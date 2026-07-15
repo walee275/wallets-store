@@ -29,6 +29,9 @@ interface Order {
     status: string;
     email: string;
     notes?: string | null;
+    carrier?: string | null;
+    tracking_number?: string | null;
+    tracking_url?: string | null;
     subtotal_cents: number;
     discount_cents: number;
     shipping_cents: number;
@@ -58,6 +61,9 @@ const { formatMoney } = useFormatMoney();
 const statusForm = useForm({
     status: props.order.status,
     note: '',
+    carrier: props.order.carrier ?? '',
+    tracking_number: props.order.tracking_number ?? '',
+    tracking_url: props.order.tracking_url ?? '',
 });
 
 const noteForm = useForm({
@@ -145,6 +151,24 @@ function addNote() {
                         <select v-model="statusForm.status" class="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm">
                             <option v-for="s in statuses" :key="s.value" :value="s.value">{{ s.label }}</option>
                         </select>
+                        <div v-if="statusForm.status === 'shipped'" class="space-y-3 rounded-md border border-stone-100 bg-stone-50 p-3">
+                            <p class="text-xs text-stone-500">Optional tracking details included in the customer shipped email.</p>
+                            <div class="space-y-1">
+                                <Label for="carrier">Carrier</Label>
+                                <Input id="carrier" v-model="statusForm.carrier" placeholder="e.g. TCS" />
+                                <InputError :message="statusForm.errors.carrier" />
+                            </div>
+                            <div class="space-y-1">
+                                <Label for="tracking_number">Tracking number</Label>
+                                <Input id="tracking_number" v-model="statusForm.tracking_number" placeholder="Tracking number" />
+                                <InputError :message="statusForm.errors.tracking_number" />
+                            </div>
+                            <div class="space-y-1">
+                                <Label for="tracking_url">Tracking URL</Label>
+                                <Input id="tracking_url" v-model="statusForm.tracking_url" type="url" placeholder="https://" />
+                                <InputError :message="statusForm.errors.tracking_url" />
+                            </div>
+                        </div>
                         <Input v-model="statusForm.note" placeholder="Note (optional)" />
                         <InputError :message="statusForm.errors.status" />
                         <Button type="submit" class="w-full bg-teal-800 hover:bg-teal-900" :disabled="statusForm.processing">Update</Button>

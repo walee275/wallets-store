@@ -8,12 +8,15 @@ use App\Enums\PaymentStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\AddOrderNoteRequest;
 use App\Http\Requests\Admin\UpdateOrderStatusRequest;
+use App\Mail\OrderDeliveredMail;
+use App\Mail\OrderShippedMail;
 use App\Models\Order;
 use App\Models\OrderStatusHistory;
 use App\Payments\PaymentGatewayManager;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -68,7 +71,15 @@ class OrderController extends Controller
         $fromStatus = $order->status;
         $toStatus = OrderStatus::from($data['status']);
 
-        $order->update(['status' => $toStatus]);
+        $attributes = ['status' => $toStatus];
+
+        if ($toStatus === OrderStatus::Shipped) {
+            $attributes['carrier'] = $data['carrier'] ?? null;
+            $attributes['tracking_number'] = $data['tracking_number'] ?? null;
+            $attributes['tracking_url'] = $data['tracking_url'] ?? null;
+        }
+
+        $order->update($attributes);
 
         OrderStatusHistory::query()->create([
             'order_id' => $order->id,
@@ -78,7 +89,25 @@ class OrderController extends Controller
             'changed_by' => $request->user()->id,
         ]);
 
+        if ($fromStatus !== $toStatus) {
+            $this->notifyCustomerOfStatusChange($order->fresh(), $toStatus);
+        }
+
         return back()->with('success', 'Order status updated.');
+    }
+
+    protected function notifyCustomerOfStatusChange(Order $order, OrderStatus $toStatus): void
+    {
+        $order->loadMissing([
+            'items.variant.images',
+            'items.variant.product.images',
+        ]);
+
+        match ($toStatus) {
+            OrderStatus::Shipped => Mail::to($order->email)->send(new OrderShippedMail($order)),
+            OrderStatus::Delivered => Mail::to($order->email)->send(new OrderDeliveredMail($order, reviewUrl: url('/'))),
+            default => null,
+        };
     }
 
     public function addNote(AddOrderNoteRequest $request, Order $order): RedirectResponse
