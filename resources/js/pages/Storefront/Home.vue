@@ -14,6 +14,7 @@ interface Category {
     id: number;
     name: string;
     slug: string;
+    image_path?: string | null;
     children?: CategoryChild[];
 }
 

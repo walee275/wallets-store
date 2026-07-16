@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import { onBeforeUnmount, ref } from 'vue';
 
 interface Parent {
     id: number;
@@ -22,11 +23,48 @@ const form = useForm({
     parent_id: null as number | null,
     position: 0,
     is_active: true,
+    image: null as File | null,
 });
 
+const imagePreview = ref<string | null>(null);
+const imageInput = ref<HTMLInputElement | null>(null);
+
 function submit() {
-    form.post(route('admin.categories.store'));
+    form.post(route('admin.categories.store'), { forceFormData: true });
 }
+
+function onImageChange(event: Event) {
+    const file = (event.target as HTMLInputElement).files?.[0] ?? null;
+    form.image = file;
+
+    if (imagePreview.value) {
+        URL.revokeObjectURL(imagePreview.value);
+        imagePreview.value = null;
+    }
+
+    if (file) {
+        imagePreview.value = URL.createObjectURL(file);
+    }
+}
+
+function clearSelectedImage() {
+    if (imagePreview.value) {
+        URL.revokeObjectURL(imagePreview.value);
+        imagePreview.value = null;
+    }
+
+    form.image = null;
+
+    if (imageInput.value) {
+        imageInput.value.value = '';
+    }
+}
+
+onBeforeUnmount(() => {
+    if (imagePreview.value) {
+        URL.revokeObjectURL(imagePreview.value);
+    }
+});
 </script>
 
 <template>
@@ -45,6 +83,7 @@ function submit() {
             <div class="space-y-2">
                 <Label for="slug">Slug</Label>
                 <Input id="slug" v-model="form.slug" required />
+                <InputError :message="form.errors.slug" />
             </div>
             <div class="space-y-2">
                 <Label for="parent_id">Parent</Label>
@@ -60,6 +99,29 @@ function submit() {
             <div class="flex items-center gap-2">
                 <Checkbox id="is_active" v-model:checked="form.is_active" />
                 <Label for="is_active">Active</Label>
+            </div>
+            <div class="space-y-2">
+                <Label for="image">Image</Label>
+                <input
+                    id="image"
+                    ref="imageInput"
+                    type="file"
+                    accept="image/*"
+                    class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium"
+                    @change="onImageChange"
+                />
+                <InputError :message="form.errors.image" />
+                <div v-if="imagePreview" class="relative inline-block">
+                    <img :src="imagePreview" alt="Selected category image" class="h-24 w-24 rounded-md border border-stone-200 object-cover" />
+                    <button
+                        type="button"
+                        class="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-stone-800 text-xs text-white hover:bg-red-600"
+                        aria-label="Remove selected image"
+                        @click="clearSelectedImage"
+                    >
+                        ×
+                    </button>
+                </div>
             </div>
             <Button type="submit" class="bg-teal-800 hover:bg-teal-900" :disabled="form.processing">Create</Button>
         </form>

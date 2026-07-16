@@ -28,6 +28,8 @@ class UpdateCategoryRequest extends FormRequest
             'slug' => ['required', 'string', 'max:255', Rule::unique('categories', 'slug')->ignore($category->id)],
             'position' => ['nullable', 'integer', 'min:0'],
             'is_active' => ['boolean'],
+            'image' => ['nullable', 'image'],
+            'remove_image' => ['sometimes', 'boolean'],
         ];
     }
 }
