@@ -1,13 +1,12 @@
 <script setup lang="ts">
-import { Link, usePage } from '@inertiajs/vue3';
+import { useStoreContent } from '@/composables/useStoreContent';
+import { Link } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
-const page = usePage();
+const { store, storeName, headerLogoUrl } = useStoreContent();
 
-const storeName = computed(() => {
-    const store = page.props.store as { name?: string } | undefined;
-    return store?.name ?? (page.props.name as string) ?? 'Commerce';
-});
+const authQuote = computed(() => store.value?.auth.quote ?? '');
+const authAttribution = computed(() => store.value?.auth.attribution ?? '');
 </script>
 
 <template>
@@ -21,18 +20,19 @@ const storeName = computed(() => {
         <div class="relative z-[2]">
             <Link
                 :href="route('home')"
-                class="font-display text-[22px] font-[450] tracking-[0.5px] text-canvas outline-none focus-visible:ring-2 focus-visible:ring-brass focus-visible:ring-offset-2 focus-visible:ring-offset-espresso"
+                class="inline-flex items-center font-display text-[22px] font-[450] tracking-[0.5px] text-canvas outline-none focus-visible:ring-2 focus-visible:ring-brass focus-visible:ring-offset-2 focus-visible:ring-offset-espresso"
             >
-                {{ storeName }}
+                <img v-if="headerLogoUrl" :src="headerLogoUrl" :alt="storeName" class="h-8 w-auto object-contain" />
+                <span v-else>{{ storeName }}</span>
             </Link>
         </div>
 
-        <div class="relative z-[2] mt-8 min-[860px]:mt-0">
+        <div v-if="authQuote" class="relative z-[2] mt-8 min-[860px]:mt-0">
             <p class="max-w-[420px] font-display text-xl font-[450] leading-[1.35] min-[860px]:text-[30px]">
-                <span class="text-brass">“</span>Full-grain leather doesn't wear out — it wears in.<span class="text-brass">”</span>
+                <span class="text-brass">“</span>{{ authQuote }}<span class="text-brass">”</span>
             </p>
-            <p class="mt-5 font-mono text-[11px] uppercase tracking-[1.5px] text-[#B7A98C]">
-                From the Workshop Floor, Islamabad
+            <p v-if="authAttribution" class="mt-5 font-mono text-[11px] uppercase tracking-[1.5px] text-[#B7A98C]">
+                {{ authAttribution }}
             </p>
         </div>
     </aside>

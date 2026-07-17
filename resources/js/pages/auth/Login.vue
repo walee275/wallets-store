@@ -11,8 +11,8 @@ defineProps<{
 
 const page = usePage();
 const storeName = computed(() => {
-    const store = page.props.store as { name?: string } | undefined;
-    return store?.name ?? (page.props.name as string) ?? 'Commerce';
+    const store = page.props.store as { branding?: { name?: string }; name?: string } | undefined;
+    return store?.branding?.name ?? store?.name ?? (page.props.name as string) ?? 'Commerce';
 });
 
 const form = useForm({

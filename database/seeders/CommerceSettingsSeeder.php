@@ -16,12 +16,81 @@ class CommerceSettingsSeeder extends Seeder
     public function run(): void
     {
         StoreSetting::set('currency', 'PKR');
-        StoreSetting::set('store_currency', 'PKR');
         StoreSetting::set('tax_mode', 'exclusive');
-        StoreSetting::set('homepage_banner_url', 'https://commerce.test/collections/bestsellers');
+
+        StoreSetting::set('branding', [
+            'name' => config('store.name', config('app.name', 'Commerce')),
+            'tagline' => config('store.tagline', 'Est. Handcrafted Goods'),
+            'location' => config('store.location', 'Islamabad, Pakistan'),
+            'care_email' => config('store.care_email', config('mail.from.address', 'hello@example.com')),
+            'phone' => null,
+            'header_logo_path' => null,
+            'footer_logo_path' => null,
+        ]);
+
+        StoreSetting::set('social', [
+            'instagram' => null,
+            'facebook' => null,
+            'tiktok' => null,
+            'youtube' => null,
+        ]);
+
+        StoreSetting::set('footer', [
+            'blurb' => 'Full-grain leather goods, hand-cut and stitched in a small workshop in Islamabad. Built to be carried, not replaced.',
+            'copyright_tagline' => 'Handcrafted, Not Mass-Produced',
+            'care_links' => [
+                ['label' => 'Returns & Exchanges', 'type' => 'page', 'value' => 'returns-policy'],
+                ['label' => 'Leather Care Guide', 'type' => 'page', 'value' => 'about'],
+            ],
+            'about_links' => [
+                ['label' => 'Our Craft', 'type' => 'page', 'value' => 'about'],
+                ['label' => 'Track Order', 'type' => 'route', 'value' => 'account.orders'],
+            ],
+        ]);
+
         StoreSetting::set('homepage', [
-            'text' => 'Summer Sale — Up to 20% Off Bestsellers',
-            'url' => '/products?collection=bestsellers',
+            'hero' => [
+                'eyebrow' => 'Full-Grain · Vegetable-Tanned · Hand-Stitched',
+                'headline' => "Cut once.\nCarried for decades.",
+                'body' => 'Every wallet begins as a single hide, selected by hand and stitched saddle-tight by our small workshop in Islamabad — built to age into something better than new.',
+                'primary_cta_label' => 'Shop the Foundry Collection',
+                'primary_cta_url' => '/products',
+                'secondary_cta_label' => "See how it's made →",
+                'secondary_cta_url' => '#craft',
+            ],
+            'banner_url' => null,
+            'categories_eyebrow' => 'Shop by category',
+            'categories_heading' => 'Three forms, one standard',
+            'featured_eyebrow' => 'Most carried',
+            'featured_heading' => 'Bestsellers',
+            'craft_steps' => [
+                [
+                    'title' => '01 — Select',
+                    'heading' => 'One hide, hand-chosen',
+                    'body' => 'Every piece starts with a single full-grain hide, inspected for grain consistency before a single cut is made.',
+                ],
+                [
+                    'title' => '02 — Cut & Stitch',
+                    'heading' => 'Saddle-stitched by hand',
+                    'body' => 'Our workshop hand-stitches every seam using waxed thread — slower than machine stitching, and far stronger.',
+                ],
+                [
+                    'title' => '03 — Finish',
+                    'heading' => 'Edges burnished, not painted',
+                    'body' => 'Edges are burnished with beeswax rather than coated, so they age gracefully instead of peeling.',
+                ],
+            ],
+        ]);
+
+        StoreSetting::set('seo', [
+            'default_description' => 'Full-grain leather goods, hand-cut and stitched in a small workshop in Islamabad.',
+            'title_suffix' => config('app.name', 'Commerce'),
+            'og_image_path' => null,
+        ]);
+
+        StoreSetting::set('auth', [
+            'quote' => "Full-grain leather doesn't wear out — it wears in.",
+            'attribution' => 'From the Workshop Floor, Islamabad',
         ]);
 
         $paymentMethods = [

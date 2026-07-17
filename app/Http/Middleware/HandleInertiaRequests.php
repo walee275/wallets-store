@@ -4,7 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Models\Cart;
 use App\Models\Category;
-use App\Models\StoreSetting;
+use App\Services\StoreContent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Middleware;
@@ -12,6 +12,8 @@ use Inertia\Middleware;
 class HandleInertiaRequests extends Middleware
 {
     protected $rootView = 'app';
+
+    public function __construct(protected StoreContent $storeContent) {}
 
     public function version(Request $request): ?string
     {
@@ -45,10 +47,7 @@ class HandleInertiaRequests extends Middleware
                 ->whereNull('parent_id')
                 ->orderBy('position')
                 ->get(['id', 'name', 'slug']),
-            'store' => fn () => [
-                'currency' => StoreSetting::get('currency', 'PKR'),
-                'name' => config('app.name', 'Commerce'),
-            ],
+            'store' => fn () => $this->storeContent->all(),
         ];
     }
 

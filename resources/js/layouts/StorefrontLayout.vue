@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import StitchDivider from '@/components/Storefront/StitchDivider.vue';
+import { resolveFooterLinkHref, useStoreContent } from '@/composables/useStoreContent';
 import { Link, usePage } from '@inertiajs/vue3';
 import { Menu, Search, X } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
@@ -28,17 +29,23 @@ const props = withDefaults(
 );
 
 const page = usePage();
+const { store, storeName, headerLogoUrl, footerLogoUrl, socialLinks } = useStoreContent();
 const mobileMenuOpen = ref(false);
 const searchQuery = ref('');
 const searchResults = ref<SearchResult[]>([]);
 const searchOpen = ref(false);
 let searchTimeout: ReturnType<typeof setTimeout> | null = null;
 
-const storeName = computed(() => (page.props.store as { name?: string })?.name ?? page.props.name);
 const navCategories = computed(() => (page.props.navCategories as NavCategory[]) ?? []);
 const cartCount = computed(() => (page.props.cartCount as number) ?? 0);
 const flash = computed(() => page.props.flash as { success?: string | null; error?: string | null });
 const auth = computed(() => page.props.auth as { user?: { name: string } | null; isAdmin?: boolean });
+const footerBlurb = computed(() => store.value?.footer.blurb ?? '');
+const copyrightTagline = computed(() => store.value?.footer.copyright_tagline ?? '');
+const location = computed(() => store.value?.branding.location ?? '');
+const careEmail = computed(() => store.value?.branding.care_email ?? null);
+const careLinks = computed(() => store.value?.footer.care_links ?? []);
+const aboutLinks = computed(() => store.value?.footer.about_links ?? []);
 
 function onSearchInput() {
     if (searchTimeout) {
@@ -84,8 +91,9 @@ function closeSearch() {
                     <X v-else class="h-5 w-5" />
                 </button>
 
-                <Link :href="route('home')" class="font-display text-[22px] font-[450] tracking-[0.5px] text-canvas">
-                    {{ storeName }}
+                <Link :href="route('home')" class="flex items-center font-display text-[22px] font-[450] tracking-[0.5px] text-canvas">
+                    <img v-if="headerLogoUrl" :src="headerLogoUrl" :alt="storeName" class="h-8 w-auto object-contain" />
+                    <span v-else>{{ storeName }}</span>
                 </Link>
 
                 <nav class="ml-4 hidden items-center gap-9 text-sm tracking-[0.3px] md:flex">
@@ -225,13 +233,28 @@ function closeSearch() {
             <div class="mx-auto max-w-[1240px]">
                 <div class="grid grid-cols-2 gap-10 border-b border-[#4A3A2C] pb-11 md:grid-cols-4">
                     <div class="col-span-2 md:col-span-1">
-                        <Link :href="route('home')" class="font-display text-[22px] font-[450] tracking-[0.5px] text-canvas">
-                            {{ storeName }}
+                        <Link :href="route('home')" class="inline-flex items-center font-display text-[22px] font-[450] tracking-[0.5px] text-canvas">
+                            <img v-if="footerLogoUrl" :src="footerLogoUrl" :alt="storeName" class="h-8 w-auto object-contain" />
+                            <span v-else>{{ storeName }}</span>
                         </Link>
-                        <p class="mt-3.5 max-w-[260px] text-[13px] leading-[22px] text-[#8F8071]">
-                            Full-grain leather goods, hand-cut and stitched in a small workshop in Islamabad. Built to be
-                            carried, not replaced.
+                        <p v-if="footerBlurb" class="mt-3.5 max-w-[260px] text-[13px] leading-[22px] text-[#8F8071]">
+                            {{ footerBlurb }}
                         </p>
+                        <p v-if="careEmail" class="mt-3 text-[13px] text-[#8F8071]">
+                            <a :href="`mailto:${careEmail}`" class="hover:text-brass">{{ careEmail }}</a>
+                        </p>
+                        <div v-if="socialLinks.length" class="mt-4 flex flex-wrap gap-4">
+                            <a
+                                v-for="social in socialLinks"
+                                :key="social.label"
+                                :href="social.url"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="text-[12px] uppercase tracking-[1px] text-[#8F8071] hover:text-brass"
+                            >
+                                {{ social.label }}
+                            </a>
+                        </div>
                     </div>
                     <div>
                         <h5 class="mb-4 font-mono text-[11px] uppercase tracking-[2px] text-brass">Shop</h5>
@@ -249,20 +272,24 @@ function closeSearch() {
                     </div>
                     <div>
                         <h5 class="mb-4 font-mono text-[11px] uppercase tracking-[2px] text-brass">Care &amp; Returns</h5>
-                        <Link :href="route('pages.show', 'returns-policy')" class="mb-2.5 block text-sm text-[#C9BEA8] hover:text-brass">
-                            Returns &amp; Exchanges
-                        </Link>
-                        <Link :href="route('pages.show', 'about')" class="mb-2.5 block text-sm text-[#C9BEA8] hover:text-brass">
-                            Leather Care Guide
+                        <Link
+                            v-for="link in careLinks"
+                            :key="`${link.type}-${link.value}`"
+                            :href="resolveFooterLinkHref(link)"
+                            class="mb-2.5 block text-sm text-[#C9BEA8] hover:text-brass"
+                        >
+                            {{ link.label }}
                         </Link>
                     </div>
                     <div>
                         <h5 class="mb-4 font-mono text-[11px] uppercase tracking-[2px] text-brass">About</h5>
-                        <Link :href="route('pages.show', 'about')" class="mb-2.5 block text-sm text-[#C9BEA8] hover:text-brass">
-                            Our Craft
-                        </Link>
-                        <Link :href="route('account.orders')" class="mb-2.5 block text-sm text-[#C9BEA8] hover:text-brass">
-                            Track Order
+                        <Link
+                            v-for="link in aboutLinks"
+                            :key="`${link.type}-${link.value}`"
+                            :href="resolveFooterLinkHref(link)"
+                            class="mb-2.5 block text-sm text-[#C9BEA8] hover:text-brass"
+                        >
+                            {{ link.label }}
                         </Link>
                         <Link
                             v-if="auth.isAdmin"
@@ -276,8 +303,8 @@ function closeSearch() {
                 <div
                     class="flex flex-col gap-3 pt-7 font-mono text-[11px] tracking-[1px] text-[#8F8071] sm:flex-row sm:items-center sm:justify-between"
                 >
-                    <span>&copy; {{ new Date().getFullYear() }} {{ storeName }} — Islamabad, Pakistan</span>
-                    <span>Handcrafted, Not Mass-Produced</span>
+                    <span>&copy; {{ new Date().getFullYear() }} {{ storeName }}<template v-if="location"> — {{ location }}</template></span>
+                    <span v-if="copyrightTagline">{{ copyrightTagline }}</span>
                 </div>
             </div>
         </footer>

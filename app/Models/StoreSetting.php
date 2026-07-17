@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\StoreContent;
 use Database\Factories\StoreSettingFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -32,9 +33,13 @@ class StoreSetting extends Model
 
     public static function set(string $key, mixed $value): static
     {
-        return static::query()->updateOrCreate(
+        $setting = static::query()->updateOrCreate(
             ['key' => $key],
             ['value_json' => $value],
         );
+
+        StoreContent::flush();
+
+        return $setting;
     }
 }

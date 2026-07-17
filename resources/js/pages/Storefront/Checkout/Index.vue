@@ -63,19 +63,7 @@ const page = usePage();
 const { formatMoney } = useFormatMoney();
 const isGuest = computed(() => !page.props.auth?.user);
 
-const addressForm = useForm({
-    name: props.checkout.address?.name ?? '',
-    phone: props.checkout.address?.phone ?? '',
-    line1: props.checkout.address?.line1 ?? '',
-    line2: props.checkout.address?.line2 ?? '',
-    city: props.checkout.address?.city ?? '',
-    state: props.checkout.address?.state ?? '',
-    postal_code: props.checkout.address?.postal_code ?? '',
-    country: props.checkout.address?.country ?? 'PK',
-});
-
-const defaultShippingRateId: number | null =
-    props.checkout.shipping_rate_id ?? props.shippingRates[0]?.id ?? null;
+const defaultShippingRateId: number | null = props.checkout.shipping_rate_id ?? props.shippingRates[0]?.id ?? null;
 
 const shippingForm = useForm<{ shipping_rate_id: number | null }>({
     shipping_rate_id: defaultShippingRateId,
@@ -91,12 +79,30 @@ const placeForm = useForm<{
     shipping_rate_id: number | null;
     billing_same_as_shipping: boolean;
     notes: string;
+    name: string;
+    phone: string;
+    line1: string;
+    line2: string;
+    city: string;
+    state: string;
+    postal_code: string;
+    country: string;
+    save_address_for_future: boolean;
 }>({
     email: '',
     payment_driver: props.paymentMethods[0]?.driver ?? '',
     shipping_rate_id: defaultShippingRateId,
     billing_same_as_shipping: true,
     notes: '',
+    name: props.checkout.address?.name ?? '',
+    phone: props.checkout.address?.phone ?? '',
+    line1: props.checkout.address?.line1 ?? '',
+    line2: props.checkout.address?.line2 ?? '',
+    city: props.checkout.address?.city ?? '',
+    state: props.checkout.address?.state ?? '',
+    postal_code: props.checkout.address?.postal_code ?? '',
+    country: props.checkout.address?.country ?? 'PK',
+    save_address_for_future: false,
 });
 
 watch(
@@ -105,10 +111,6 @@ watch(
         placeForm.shipping_rate_id = rateId == null ? null : Number(rateId);
     },
 );
-
-function saveAddress() {
-    addressForm.post(route('checkout.address'), { preserveScroll: true });
-}
 
 function saveShipping() {
     if (shippingForm.shipping_rate_id != null) {
@@ -135,19 +137,18 @@ function placeOrder() {
 }
 
 function fillAddress(address: Address) {
-    addressForm.name = address.name;
-    addressForm.phone = address.phone ?? '';
-    addressForm.line1 = address.line1;
-    addressForm.line2 = address.line2 ?? '';
-    addressForm.city = address.city;
-    addressForm.state = address.state ?? '';
-    addressForm.postal_code = address.postal_code ?? '';
-    addressForm.country = address.country;
+    placeForm.name = address.name;
+    placeForm.phone = address.phone ?? '';
+    placeForm.line1 = address.line1;
+    placeForm.line2 = address.line2 ?? '';
+    placeForm.city = address.city;
+    placeForm.state = address.state ?? '';
+    placeForm.postal_code = address.postal_code ?? '';
+    placeForm.country = address.country;
 }
 </script>
 
 <template>
-
     <Head title="Checkout" />
 
     <StorefrontLayout>
@@ -155,113 +156,140 @@ function fillAddress(address: Address) {
 
         <div class="grid gap-8 lg:grid-cols-[1fr_340px]">
             <div class="space-y-8">
-                <!-- Address -->
-                <section class="rounded-lg border border-stone-200 bg-white p-5">
-                    <h2 class="font-semibold">Shipping address</h2>
+                <form class="space-y-8" @submit.prevent="placeOrder">
+                    <!-- Address -->
+                    <section class="rounded-lg border border-stone-200 bg-white p-5">
+                        <h2 class="font-semibold">Shipping address</h2>
 
-                    <div v-if="addresses.length" class="mt-3 flex flex-wrap gap-2">
-                        <button v-for="address in addresses" :key="address.id" type="button"
-                            class="rounded-md border border-stone-200 px-3 py-1.5 text-xs hover:border-teal-800"
-                            @click="fillAddress(address)">
-                            {{ address.name }} — {{ address.city }}
-                        </button>
-                    </div>
-
-                    <form class="mt-4 grid gap-4 sm:grid-cols-2" @submit.prevent="saveAddress">
-                        <div class="space-y-2 sm:col-span-2">
-                            <Label for="name">Full name</Label>
-                            <Input id="name" v-model="addressForm.name" required />
-                            <InputError :message="addressForm.errors.name" />
-                        </div>
-                        <div class="space-y-2">
-                            <Label for="phone">Phone</Label>
-                            <Input id="phone" v-model="addressForm.phone" />
-                        </div>
-                        <div class="space-y-2">
-                            <Label for="country">Country</Label>
-                            <Input id="country" v-model="addressForm.country" maxlength="2" required />
-                        </div>
-                        <div class="space-y-2 sm:col-span-2">
-                            <Label for="line1">Address line 1</Label>
-                            <Input id="line1" v-model="addressForm.line1" required />
-                            <InputError :message="addressForm.errors.line1" />
-                        </div>
-                        <div class="space-y-2 sm:col-span-2">
-                            <Label for="line2">Address line 2</Label>
-                            <Input id="line2" v-model="addressForm.line2" />
-                        </div>
-                        <div class="space-y-2">
-                            <Label for="city">City</Label>
-                            <Input id="city" v-model="addressForm.city" required />
-                        </div>
-                        <div class="space-y-2">
-                            <Label for="state">State</Label>
-                            <Input id="state" v-model="addressForm.state" />
-                        </div>
-                        <div class="space-y-2">
-                            <Label for="postal_code">Postal code</Label>
-                            <Input id="postal_code" v-model="addressForm.postal_code" />
-                        </div>
-                        <div class="sm:col-span-2">
-                            <Button type="submit" variant="outline" :disabled="addressForm.processing">Save
-                                address</Button>
-                        </div>
-                    </form>
-                </section>
-
-                <!-- Payment & place order -->
-                <section class="rounded-lg border border-stone-200 bg-white p-5">
-                    <h2 class="font-semibold">Payment</h2>
-                    <form class="mt-4 space-y-4" @submit.prevent="placeOrder">
-                        <div v-if="isGuest" class="space-y-2">
-                            <Label for="email">Email</Label>
-                            <Input id="email" v-model="placeForm.email" type="email" required />
-                            <InputError :message="placeForm.errors.email" />
+                        <div v-if="addresses.length" class="mt-3 flex flex-wrap gap-2">
+                            <button
+                                v-for="address in addresses"
+                                :key="address.id"
+                                type="button"
+                                class="rounded-md border border-stone-200 px-3 py-1.5 text-xs hover:border-teal-800"
+                                @click="fillAddress(address)"
+                            >
+                                {{ address.name }} — {{ address.city }}
+                            </button>
                         </div>
 
-                        <div class="space-y-2">
-                            <Label>Payment method</Label>
-                            <label v-for="method in paymentMethods" :key="method.id"
-                                class="flex cursor-pointer items-center gap-3 rounded-md border border-stone-200 px-4 py-3"
-                                :class="placeForm.payment_driver === method.driver ? 'border-teal-800 bg-teal-50' : ''">
-                                <input v-model="placeForm.payment_driver" type="radio" :value="method.driver" />
-                                {{ method.name }}
-                            </label>
-                            <InputError :message="placeForm.errors.payment_driver" />
+                        <div class="mt-4 grid gap-4 sm:grid-cols-2">
+                            <div class="space-y-2 sm:col-span-2">
+                                <Label for="name">Full name</Label>
+                                <Input id="name" v-model="placeForm.name" required />
+                                <InputError :message="placeForm.errors.name" />
+                            </div>
+                            <div class="space-y-2">
+                                <Label for="phone">Phone</Label>
+                                <Input id="phone" v-model="placeForm.phone" />
+                                <InputError :message="placeForm.errors.phone" />
+                            </div>
+                            <div class="space-y-2">
+                                <Label for="country">Country</Label>
+                                <Input id="country" v-model="placeForm.country" maxlength="2" required />
+                                <InputError :message="placeForm.errors.country" />
+                            </div>
+                            <div class="space-y-2 sm:col-span-2">
+                                <Label for="line1">Address line 1</Label>
+                                <Input id="line1" v-model="placeForm.line1" required />
+                                <InputError :message="placeForm.errors.line1" />
+                            </div>
+                            <div class="space-y-2 sm:col-span-2">
+                                <Label for="line2">Address line 2</Label>
+                                <Input id="line2" v-model="placeForm.line2" />
+                                <InputError :message="placeForm.errors.line2" />
+                            </div>
+                            <div class="space-y-2">
+                                <Label for="city">City</Label>
+                                <Input id="city" v-model="placeForm.city" required />
+                                <InputError :message="placeForm.errors.city" />
+                            </div>
+                            <div class="space-y-2">
+                                <Label for="state">State</Label>
+                                <Input id="state" v-model="placeForm.state" />
+                                <InputError :message="placeForm.errors.state" />
+                            </div>
+                            <div class="space-y-2">
+                                <Label for="postal_code">Postal code</Label>
+                                <Input id="postal_code" v-model="placeForm.postal_code" />
+                                <InputError :message="placeForm.errors.postal_code" />
+                            </div>
+                            <div v-if="!isGuest" class="flex items-center gap-2 sm:col-span-2">
+                                <input
+                                    id="save_address_for_future"
+                                    v-model="placeForm.save_address_for_future"
+                                    type="checkbox"
+                                    class="h-4 w-4 accent-teal-800"
+                                />
+                                <Label for="save_address_for_future">Save address for future?</Label>
+                            </div>
                         </div>
+                    </section>
 
-                        <div class="space-y-2">
-                            <Label for="notes">Order notes (optional)</Label>
-                            <textarea id="notes" v-model="placeForm.notes" rows="3"
-                                class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
+                    <!-- Payment & place order -->
+                    <section class="rounded-lg border border-stone-200 bg-white p-5">
+                        <h2 class="font-semibold">Payment</h2>
+                        <div class="mt-4 space-y-4">
+                            <div v-if="isGuest" class="space-y-2">
+                                <Label for="email">Email</Label>
+                                <Input id="email" v-model="placeForm.email" type="email" required />
+                                <InputError :message="placeForm.errors.email" />
+                            </div>
+
+                            <div class="space-y-2">
+                                <Label>Payment method</Label>
+                                <label
+                                    v-for="method in paymentMethods"
+                                    :key="method.id"
+                                    class="flex cursor-pointer items-center gap-3 rounded-md border border-stone-200 px-4 py-3"
+                                    :class="placeForm.payment_driver === method.driver ? 'border-teal-800 bg-teal-50' : ''"
+                                >
+                                    <input v-model="placeForm.payment_driver" type="radio" :value="method.driver" />
+                                    {{ method.name }}
+                                </label>
+                                <InputError :message="placeForm.errors.payment_driver" />
+                            </div>
+
+                            <div class="space-y-2">
+                                <Label for="notes">Order notes (optional)</Label>
+                                <textarea
+                                    id="notes"
+                                    v-model="placeForm.notes"
+                                    rows="3"
+                                    class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                                />
+                            </div>
+
+                            <InputError :message="placeForm.errors.checkout" />
+
+                            <Button type="submit" class="w-full bg-teal-800 hover:bg-teal-900" :disabled="placeForm.processing"> Place order </Button>
                         </div>
-
-                        <InputError :message="placeForm.errors.checkout" />
-                        <InputError :message="placeForm.errors.address" />
-
-                        <Button type="submit" class="w-full bg-teal-800 hover:bg-teal-900"
-                            :disabled="placeForm.processing">
-                            Place order
-                        </Button>
-                    </form>
-                </section>
+                    </section>
+                </form>
             </div>
 
             <aside class="h-fit rounded-lg border border-stone-200 bg-white p-5">
                 <!-- Shipping -->
-                <section class="rounded-lg mb-3 border border-stone-200 bg-white p-5">
+                <section class="mb-3 rounded-lg border border-stone-200 bg-white p-5">
                     <h2 class="font-semibold">Shipping method</h2>
                     <div class="mt-4 space-y-3">
-                        <label v-for="rate in shippingRates" :key="rate.id"
+                        <label
+                            v-for="rate in shippingRates"
+                            :key="rate.id"
                             class="flex cursor-pointer items-center justify-between rounded-md border border-stone-200 px-4 py-3"
-                            :class="Number(shippingForm.shipping_rate_id) === rate.id ? 'border-teal-800 bg-teal-50' : ''">
+                            :class="Number(shippingForm.shipping_rate_id) === rate.id ? 'border-teal-800 bg-teal-50' : ''"
+                        >
                             <span class="flex items-center gap-3">
-                                <input v-model="shippingForm.shipping_rate_id" type="radio" :value="rate.id"
-                                    :disabled="shippingForm.processing" @change="onShippingRateChange" />
+                                <input
+                                    v-model="shippingForm.shipping_rate_id"
+                                    type="radio"
+                                    :value="rate.id"
+                                    :disabled="shippingForm.processing"
+                                    @change="onShippingRateChange"
+                                />
                                 <span>
                                     <span class="font-medium">{{ rate.name }}</span>
-                                    <span v-if="rate.zone" class="ml-2 text-xs text-stone-500">{{ rate.zone.name
-                                    }}</span>
+                                    <span v-if="rate.zone" class="ml-2 text-xs text-stone-500">{{ rate.zone.name }}</span>
                                 </span>
                             </span>
                             <span class="text-sm font-medium">{{ formatMoney(rate.price_cents) }}</span>
@@ -272,15 +300,14 @@ function fillAddress(address: Address) {
                 </section>
 
                 <!-- Coupon -->
-                <section class="rounded-lg mb-3 border border-stone-200 bg-white p-5">
+                <section class="mb-3 rounded-lg border border-stone-200 bg-white p-5">
                     <h2 class="font-semibold">Discount code</h2>
                     <form class="mt-4 flex gap-2" @submit.prevent="applyCoupon">
                         <Input v-model="couponForm.code" placeholder="Enter code" class="flex-1" />
                         <Button type="submit" variant="outline" :disabled="couponForm.processing">Apply</Button>
                     </form>
                     <InputError :message="couponForm.errors.code" />
-                    <p v-if="checkout.discount_code" class="mt-2 text-sm text-teal-800">Applied: {{
-                        checkout.discount_code }}</p>
+                    <p v-if="checkout.discount_code" class="mt-2 text-sm text-teal-800">Applied: {{ checkout.discount_code }}</p>
                 </section>
                 <div>
                     <h2 class="font-semibold">Order summary</h2>
@@ -313,7 +340,6 @@ function fillAddress(address: Address) {
                         </div>
                     </dl>
                 </div>
-
             </aside>
         </div>
     </StorefrontLayout>

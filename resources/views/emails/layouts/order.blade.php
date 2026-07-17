@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<title>{{ $title ?? config('store.name') }}</title>
+<title>{{ $title ?? ($store['name'] ?? config('store.name')) }}</title>
 <!--[if mso]>
 <style type="text/css">
   table { border-collapse: collapse; }
@@ -45,12 +45,12 @@
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         <tr>
           <td align="center" style="font-family: Georgia, 'Times New Roman', serif; font-size:13px; letter-spacing:4px; color:#A6874F; text-transform:uppercase; padding-bottom:10px;">
-            {{ config('store.tagline') }}
+            {{ $store['tagline'] ?? config('store.tagline') }}
           </td>
         </tr>
         <tr>
           <td align="center" style="font-family: Georgia, 'Times New Roman', serif; font-size:28px; letter-spacing:1px; color:#E8E1D3;">
-            {{ strtoupper(config('store.name')) }}
+            {{ strtoupper($store['name'] ?? config('store.name')) }}
           </td>
         </tr>
       </table>
@@ -99,13 +99,13 @@
         <tr>
           <td align="center" style="font-family: Helvetica, Arial, sans-serif; font-size:12px; line-height:20px; color:#8A7D6C;">
             Questions about your order? Reply to this email or reach us at
-            <a href="mailto:{{ config('store.care_email') }}" style="color:#5C1F22;">{{ config('store.care_email') }}</a>
+            <a href="mailto:{{ $store['care_email'] ?? config('store.care_email') }}" style="color:#5C1F22;">{{ $store['care_email'] ?? config('store.care_email') }}</a>
           </td>
         </tr>
         <tr><td style="height:18px; line-height:18px; font-size:0;">&nbsp;</td></tr>
         <tr>
           <td align="center" style="font-family:'Courier New', Courier, monospace; font-size:10px; letter-spacing:1.5px; color:#B7A98C; text-transform:uppercase;">
-            {{ config('store.name') }} &nbsp;·&nbsp; {{ config('store.location') }}
+            {{ $store['name'] ?? config('store.name') }} &nbsp;·&nbsp; {{ $store['location'] ?? config('store.location') }}
           </td>
         </tr>
         @if(config('store.preferences_url'))

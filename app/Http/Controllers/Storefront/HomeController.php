@@ -5,15 +5,27 @@ namespace App\Http\Controllers\Storefront;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Collection;
+use App\Services\StoreContent;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class HomeController extends Controller
 {
+    public function __construct(protected StoreContent $storeContent) {}
+
     public function index(): Response
     {
-        $featuredCollection = Collection::query()
-            ->where('is_featured', true)
+        $featuredCollectionId = $this->storeContent->all()['featured_collection_id'];
+
+        $featuredCollectionQuery = Collection::query();
+
+        if ($featuredCollectionId) {
+            $featuredCollectionQuery->whereKey($featuredCollectionId);
+        } else {
+            $featuredCollectionQuery->where('is_featured', true);
+        }
+
+        $featuredCollection = $featuredCollectionQuery
             ->with(['products' => function ($query) {
                 $query->active()
                     ->with([

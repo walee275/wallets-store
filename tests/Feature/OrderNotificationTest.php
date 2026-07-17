@@ -23,12 +23,6 @@ test('placing an order queues customer confirmation and admin notification', fun
 
     carrySessionFrom($cartResponse);
 
-    $addressResponse = $this->post(route('checkout.address'), sampleCheckoutAddress())
-        ->assertRedirect()
-        ->assertSessionHasNoErrors();
-
-    carrySessionFrom($addressResponse);
-
     $shippingResponse = $this->post(route('checkout.shipping'), [
         'shipping_rate_id' => $setup['shippingRate']->id,
     ])->assertRedirect()->assertSessionHasNoErrors();
@@ -40,6 +34,7 @@ test('placing an order queues customer confirmation and admin notification', fun
         'payment_driver' => 'cod',
         'billing_same_as_shipping' => true,
         'shipping_rate_id' => $setup['shippingRate']->id,
+        ...sampleCheckoutAddress(),
     ])->assertSessionHasNoErrors();
 
     $order = Order::query()->first();

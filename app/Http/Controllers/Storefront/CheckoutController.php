@@ -115,15 +115,24 @@ class CheckoutController extends Controller
         CreateOrder $createOrder,
     ): RedirectResponse {
         $cart = $resolveCart->handle();
-        $address = $request->session()->get('checkout.address');
+        $data = $request->validated();
+
+        $address = [
+            'name' => $data['name'],
+            'phone' => $data['phone'] ?? null,
+            'line1' => $data['line1'],
+            'line2' => $data['line2'] ?? null,
+            'city' => $data['city'],
+            'state' => $data['state'] ?? null,
+            'postal_code' => $data['postal_code'] ?? null,
+            'country' => $data['country'],
+        ];
+
+        $request->session()->put('checkout.address', $address);
 
         // Prefer an explicit selection from the place-order form, then session.
         $shippingRateId = $request->integer('shipping_rate_id')
             ?: $request->session()->get('checkout.shipping_rate_id');
-
-        if (! is_array($address) || empty($address)) {
-            return back()->withErrors(['address' => 'Please provide a shipping address.']);
-        }
 
         if (! $shippingRateId) {
             return back()->withErrors(['shipping_rate_id' => 'Please select a shipping method.']);
@@ -131,7 +140,18 @@ class CheckoutController extends Controller
 
         $request->session()->put('checkout.shipping_rate_id', (int) $shippingRateId);
 
-        $email = $request->user()?->email ?? $request->string('email')->toString();
+        $user = $request->user();
+
+        if ($user && $request->boolean('save_address_for_future')) {
+            $isFirstAddress = ! $user->addresses()->exists();
+
+            $user->addresses()->create([
+                ...$address,
+                'is_default' => $isFirstAddress,
+            ]);
+        }
+
+        $email = $user?->email ?? $request->string('email')->toString();
         $billingAddress = $request->boolean('billing_same_as_shipping', true)
             ? $address
             : $request->validated('billing_address');
@@ -142,7 +162,7 @@ class CheckoutController extends Controller
                 shippingAddress: $address,
                 billingAddress: $billingAddress,
                 email: $email,
-                user: $request->user(),
+                user: $user,
                 shippingRateId: (int) $shippingRateId,
                 paymentDriver: $request->string('payment_driver')->toString(),
                 discountCode: $request->session()->get('checkout.discount_code'),
