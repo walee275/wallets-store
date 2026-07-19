@@ -78,7 +78,7 @@ function closeSearch() {
 </script>
 
 <template>
-    <div class="flex min-h-screen flex-col bg-canvas font-sans text-ink">
+    <div class="flex flex-col min-h-screen font-sans bg-canvas text-ink">
         <header class="bg-espresso text-canvas">
             <div class="mx-auto flex max-w-[1240px] items-center justify-between gap-4 px-6 py-[26px] md:px-10">
                 <button
@@ -87,12 +87,12 @@ function closeSearch() {
                     aria-label="Toggle menu"
                     @click="mobileMenuOpen = !mobileMenuOpen"
                 >
-                    <Menu v-if="!mobileMenuOpen" class="h-5 w-5" />
-                    <X v-else class="h-5 w-5" />
+                    <Menu v-if="!mobileMenuOpen" class="w-5 h-5" />
+                    <X v-else class="w-5 h-5" />
                 </button>
 
                 <Link :href="route('home')" class="flex items-center font-display text-[22px] font-[450] tracking-[0.5px] text-canvas">
-                    <img v-if="headerLogoUrl" :src="headerLogoUrl" :alt="storeName" class="h-8 w-auto object-contain" />
+                    <img v-if="headerLogoUrl" :src="headerLogoUrl" :alt="storeName" class="object-contain w-auto h-8" />
                     <span v-else>{{ storeName }}</span>
                 </Link>
 
@@ -112,7 +112,7 @@ function closeSearch() {
                         <div
                             class="flex items-center gap-2 border border-[#4A3A2C] px-3.5 py-2 text-[13px] text-[#8F8071]"
                         >
-                            <Search class="h-3.5 w-3.5 shrink-0" />
+                            <Search class="w-3.5 h-3.5 shrink-0" />
                             <input
                                 v-model="searchQuery"
                                 type="search"
@@ -134,7 +134,7 @@ function closeSearch() {
                                 class="flex items-center gap-3 px-3 py-2 text-sm text-[#C9BEA8] hover:text-brass"
                                 @click="closeSearch"
                             >
-                                <span class="line-clamp-1 flex-1">{{ result.title }}</span>
+                                <span class="flex-1 line-clamp-1">{{ result.title }}</span>
                             </Link>
                         </div>
                     </div>
@@ -162,6 +162,15 @@ function closeSearch() {
                         >
                             {{ cartCount > 99 ? '99+' : cartCount }}
                         </span>
+                    </Link>
+                    <Link
+                        v-if="auth.user"
+                        :href="route('logout')"
+                        method="post"
+                        as="button"
+                        class="hidden text-[#C9BEA8] transition-colors hover:text-brass sm:inline"
+                    >
+                        Log out
                     </Link>
                 </div>
             </div>
@@ -200,6 +209,15 @@ function closeSearch() {
                         >
                             Admin
                         </Link>
+                        <Link
+                            :href="route('logout')"
+                            method="post"
+                            as="button"
+                            class="text-left text-sm text-[#C9BEA8] hover:text-brass"
+                            @click="mobileMenuOpen = false"
+                        >
+                            Log out
+                        </Link>
                     </template>
                     <template v-else>
                         <Link
@@ -216,10 +234,10 @@ function closeSearch() {
 
         <StitchDivider />
 
-        <div v-if="flash?.success" class="border-b border-brass/30 bg-espresso px-4 py-2 text-center text-sm text-canvas">
+        <div v-if="flash?.success" class="px-4 py-2 text-sm text-center border-b border-brass/30 bg-espresso text-canvas">
             {{ flash.success }}
         </div>
-        <div v-if="flash?.error" class="border-b border-oxblood/40 bg-oxblood/20 px-4 py-2 text-center text-sm text-oxblood">
+        <div v-if="flash?.error" class="px-4 py-2 text-sm text-center border-b border-oxblood/40 bg-oxblood/20 text-oxblood">
             {{ flash.error }}
         </div>
 
@@ -234,7 +252,7 @@ function closeSearch() {
                 <div class="grid grid-cols-2 gap-10 border-b border-[#4A3A2C] pb-11 md:grid-cols-4">
                     <div class="col-span-2 md:col-span-1">
                         <Link :href="route('home')" class="inline-flex items-center font-display text-[22px] font-[450] tracking-[0.5px] text-canvas">
-                            <img v-if="footerLogoUrl" :src="footerLogoUrl" :alt="storeName" class="h-8 w-auto object-contain" />
+                            <img v-if="footerLogoUrl" :src="footerLogoUrl" :alt="storeName" class="object-contain w-auto h-8" />
                             <span v-else>{{ storeName }}</span>
                         </Link>
                         <p v-if="footerBlurb" class="mt-3.5 max-w-[260px] text-[13px] leading-[22px] text-[#8F8071]">
@@ -243,7 +261,7 @@ function closeSearch() {
                         <p v-if="careEmail" class="mt-3 text-[13px] text-[#8F8071]">
                             <a :href="`mailto:${careEmail}`" class="hover:text-brass">{{ careEmail }}</a>
                         </p>
-                        <div v-if="socialLinks.length" class="mt-4 flex flex-wrap gap-4">
+                        <div v-if="socialLinks.length" class="flex flex-wrap gap-4 mt-4">
                             <a
                                 v-for="social in socialLinks"
                                 :key="social.label"
